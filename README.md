@@ -26,7 +26,7 @@ Everything runs with **zero keys**. Each integration switches to the real servic
 
 - `ANTHROPIC_API_KEY`: real Claude ideas, grading and FAQ answers (otherwise templates and a heuristic, labelled in the UI)
 - `RESEND_API_KEY`: real email verification codes (otherwise demo mode shows the code on screen)
-- `TWILIO_*`: real WhatsApp bot and drip messages (otherwise sends are marked "simulated")
+- `TWILIO_*`: real WhatsApp bot and drip messages (otherwise sends are logged as "no-provider")
 - `DATABASE_URL=libsql://…`: Turso hosted database (otherwise a local SQLite file)
 
 The dashboard shows which integrations are live. There is no synthetic data: every number comes from real visits, sign-ups and messages.

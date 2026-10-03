@@ -3,9 +3,10 @@ import { checkOtp, issueOtp, track } from "@/lib/growth";
 import { one } from "@/lib/db";
 import { integrations } from "@/lib/config";
 import { sendEmail } from "@/lib/messaging";
-import { body, json } from "@/lib/http";
+import { body, json, rateLimited, tooMany } from "@/lib/http";
 
 export async function POST(req: NextRequest) {
+  if (rateLimited(req, "verify", 15, 600000)) return tooMany();
   const b = await body<{ userId?: number; code?: string; resend?: boolean }>(req);
   if (!b.userId) return json({ ok: false, error: "missing userId" }, 400);
   if (b.resend) {

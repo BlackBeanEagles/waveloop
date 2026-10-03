@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { track } from "@/lib/growth";
 import { body, json } from "@/lib/http";
 
-const ALLOWED = new Set(["page_view", "form_started", "shared", "referral_page_view"]);
+const ALLOWED = new Set(["page_view", "form_started", "shared", "referral_page_view", "calendar_added"]);
 
 export async function POST(req: NextRequest) {
   const b = await body<{ type?: string; visitorId?: string; variant?: string; channel?: string; userId?: number; meta?: unknown }>(req);

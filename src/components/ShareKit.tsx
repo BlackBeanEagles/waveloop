@@ -44,6 +44,9 @@ export default function ShareKit(p: Props) {
           Download card
         </a>
       </div>
+      <a className="btn-ghost" href="/api/ics" onClick={() => post("/api/track", { type: "calendar_added", userId: p.userId })}>
+        📅 Add workshop to my calendar
+      </a>
       <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={p.qr} alt="QR code for your link" className="h-24 w-24 rounded-lg" />

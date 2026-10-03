@@ -24,3 +24,15 @@ export function adminAllowed(req: NextRequest) {
   if (!key) return true;
   return req.headers.get("x-admin-key") === key || req.cookies.get("wl_admin")?.value === key;
 }
+
+// Per-instance sliding-window limiter. Stops one client from draining Claude credits or spamming sign-ups.
+const hits = new Map<string, number[]>();
+export function rateLimited(req: NextRequest, bucket: string, max: number, windowMs: number) {
+  const key = `${bucket}:${clientIp(req)}`;
+  const t = Date.now();
+  const recent = (hits.get(key) ?? []).filter((x) => t - x < windowMs);
+  recent.push(t);
+  hits.set(key, recent);
+  return recent.length > max;
+}
+export const tooMany = () => json({ ok: false, error: "Too many requests. Try again in a minute." }, 429);

@@ -13,7 +13,7 @@ const GRID = "#e5e7eb";
 type D = {
   integrations: Record<string, boolean>;
   clock: { dayNumber: number; workshop: string };
-  kpis: { counted: number; registered: number; verified: number; flagged: number; viaReferral: number; kFactor: number; projected: number; neededPerDay: number; costPerReg: number; target: number };
+  kpis: { counted: number; registered: number; verified: number; flagged: number; attended: number; viaReferral: number; kFactor: number; projected: number; neededPerDay: number; costPerReg: number; target: number };
   funnel: { stage: string; value: number }[];
   series: { day: string; registrations: number | null; cumulative: number | null; target: number }[];
   byChannel: { channel: string; regs: number; verified: number }[];
@@ -30,9 +30,13 @@ export default function Admin() {
   const [msgs, setMsgs] = useState<OutMsg[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);
+  const [key, setKey] = useState("");
 
   const load = useCallback(async () => {
     const [m, o] = await Promise.all([fetch("/api/admin/metrics", { cache: "no-store" }), fetch("/api/admin/drip", { cache: "no-store" })]);
+    if (m.status === 403) return setLocked(true);
+    setLocked(false);
     if (m.ok) setD(await m.json());
     if (o.ok) setMsgs((await o.json()).messages);
   }, []);
@@ -51,6 +55,23 @@ export default function Admin() {
     load();
   }
 
+  if (locked)
+    return (
+      <form
+        className="card mx-auto mt-16 flex max-w-sm flex-col gap-3"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const r = await post<{ ok: boolean; error?: string }>("/api/admin/login", { key });
+          if (r.ok) load();
+          else setNote(r.error ?? "Wrong key");
+        }}
+      >
+        <h1 className="text-lg font-bold">Admin login</h1>
+        {note && <div className="text-sm text-red-700">{note}</div>}
+        <input className="input" type="password" placeholder="Admin key" value={key} onChange={(e) => setKey(e.target.value)} />
+        <button className="btn-primary">Open dashboard</button>
+      </form>
+    );
   if (!d) return <div className="p-10 text-center text-slate-500">Loading dashboard…</div>;
   const k = d.kpis;
   const onTrack = k.projected >= k.target;
@@ -75,6 +96,9 @@ export default function Admin() {
           <button className="btn-ghost" disabled={!!busy} onClick={() => action("drip", () => post("/api/admin/drip", {}))}>
             {busy === "drip" ? "Sending…" : "✉ Run drip now"}
           </button>
+          <a className="btn-ghost" href="/api/admin/export">
+            ⬇ Export CSV
+          </a>
           <button
             className="btn-ghost text-red-700"
             disabled={!!busy}
@@ -92,7 +116,7 @@ export default function Admin() {
         <Kpi big={`${k.neededPerDay}/day`} sub="needed from here" hint="To hit target" />
         <Kpi big={k.kFactor.toFixed(2)} sub="viral coefficient" hint="Referral sign-ups per seed sign-up" />
         <Kpi big={`${k.flagged}`} sub="flagged as fraud" hint="Held out of the leaderboard" />
-        <Kpi big={`₹${k.costPerReg.toFixed(1)}`} sub="cost per registration" hint="Prize pool ÷ counted" />
+        <Kpi big={`${k.attended}`} sub="checked in live" hint={k.counted ? `${Math.round((k.attended / k.counted) * 100)}% show-up rate` : "Attendance"} />
       </div>
 
       <div className="mb-6 grid gap-6 lg:grid-cols-2">

@@ -15,6 +15,8 @@ export default function LivePage() {
   const [voted, setVoted] = useState<Record<number, number>>({});
   const [q, setQ] = useState({ author: "", body: "" });
   const [newPoll, setNewPoll] = useState({ question: "", options: "" });
+  const [checkin, setCheckin] = useState("");
+  const [checkMsg, setCheckMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const load = useCallback(async () => {
     const r = await fetch("/api/live", { cache: "no-store" });
@@ -48,6 +50,20 @@ export default function LivePage() {
           <input type="checkbox" checked={host} onChange={(e) => setHost(e.target.checked)} /> Host controls
         </label>
       </div>
+
+      <form
+        className="card mb-6 flex flex-wrap items-center gap-3"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const r = await post<{ ok: boolean; name?: string; error?: string }>("/api/checkin", { id: checkin });
+          setCheckMsg(r.ok ? { ok: true, text: `You're checked in, ${r.name}! Your certificate unlocks after you submit your project.` } : { ok: false, text: r.error ?? "Could not check in" });
+        }}
+      >
+        <span className="font-semibold">Check in for your certificate</span>
+        <input className="input max-w-xs" placeholder="Registered email or phone" value={checkin} onChange={(e) => setCheckin(e.target.value)} />
+        <button className="btn-primary">Check in</button>
+        {checkMsg && <span className={`text-sm ${checkMsg.ok ? "text-green-700" : "text-red-700"}`}>{checkMsg.text}</span>}
+      </form>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="card">

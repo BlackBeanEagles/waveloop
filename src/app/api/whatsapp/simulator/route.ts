@@ -1,9 +1,10 @@
 import { NextRequest } from "next/server";
 import { handleWhatsApp } from "@/lib/wabot";
 import { all } from "@/lib/db";
-import { body, clientIp, json } from "@/lib/http";
+import { body, clientIp, json, rateLimited, tooMany } from "@/lib/http";
 
 export async function POST(req: NextRequest) {
+  if (rateLimited(req, "wa", 30, 60000)) return tooMany();
   const b = await body<{ phone?: string; text?: string }>(req);
   const phone = (b.phone ?? "").replace(/\D/g, "").slice(-10);
   if (!/^[6-9]\d{9}$/.test(phone) || !b.text?.trim()) return json({ error: "phone and text required" }, 400);
