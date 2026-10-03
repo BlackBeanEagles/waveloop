@@ -11,6 +11,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ code
   const group = req.nextUrl.searchParams.get("g");
   if (amb) await track("amb_click", { channel: "ambassador", meta: { amb: Number(amb.id), group: group ?? "general" } });
   if (group) url.searchParams.set("utm_content", group);
+  const lang = req.nextUrl.searchParams.get("lang");
+  if (lang) url.searchParams.set("lang", lang);
   const res = NextResponse.redirect(url);
   if (amb) res.cookies.set("wl_amb", code.toUpperCase(), { maxAge: 60 * 60 * 24 * 14, path: "/" });
   return res;

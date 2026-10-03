@@ -144,11 +144,24 @@ CREATE TABLE IF NOT EXISTS settings (
 
 export function ready(): Promise<void> {
   // Re-run when the schema text changes (dev hot reload keeps globalThis alive). Every statement is IF NOT EXISTS.
-  if (!globalForDb.__dbReady || globalForDb.__dbSchema !== SCHEMA) {
-    globalForDb.__dbSchema = SCHEMA;
-    globalForDb.__dbReady = db.executeMultiple(SCHEMA);
+  if (!globalForDb.__dbReady || globalForDb.__dbSchema !== SCHEMA + MIGRATIONS.join()) {
+    globalForDb.__dbSchema = SCHEMA + MIGRATIONS.join();
+    globalForDb.__dbReady = db.executeMultiple(SCHEMA).then(migrate);
   }
   return globalForDb.__dbReady;
+}
+
+// Columns added after the first release. ALTER fails harmlessly when the column already exists.
+const MIGRATIONS = ["ALTER TABLE users ADD COLUMN lang TEXT NOT NULL DEFAULT 'en'"];
+
+async function migrate() {
+  for (const sql of MIGRATIONS) {
+    try {
+      await db.execute(sql);
+    } catch (e) {
+      if (!String(e).includes("duplicate column")) throw e;
+    }
+  }
 }
 
 export async function all<T = Record<string, unknown>>(sql: string, args: InValue[] = []): Promise<T[]> {

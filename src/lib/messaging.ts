@@ -1,6 +1,7 @@
 import { all, now, run, one } from "./db";
 import { integrations } from "./config";
 import { referralCount } from "./growth";
+import { RESCUE_THRESHOLD, scoreUser } from "./showup";
 
 export type SendResult = { provider: "twilio" | "resend" | "no-provider"; ok: boolean; error?: string };
 
@@ -56,6 +57,10 @@ export async function processOutbox(limit = 200) {
     if (!Number(m.verified) && m.template !== "welcome") skip = "unverified";
     if (m.template === "referral_nudge" && (await referralCount(Number(m.user_id))) > 0) skip = "already referred";
     if (m.template === "submit_project" && !Number(m.attended)) skip = "did not attend";
+    if (m.template.startsWith("rescue_")) {
+      const p = await scoreUser(Number(m.user_id));
+      if (p != null && p >= RESCUE_THRESHOLD) skip = `likely to attend (${Math.round(p * 100)}%)`;
+    }
     if (skip) {
       await run("UPDATE outbox SET status = 'skipped', sent_at = ?, provider = ? WHERE id = ?", [now(), skip, m.id]);
       summary.skipped++;

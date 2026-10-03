@@ -3,13 +3,12 @@ import { BRANCHES, YEARS, WORKSHOP_TITLE } from "./config";
 import { campaignClock, fmtIST, referralCount, referralLink, rewardState, track } from "./growth";
 import { registerUser } from "./register";
 import { answerFaq, generateIdea } from "./ai";
+import { detectScript, isLang, m, type Lang } from "./i18n";
 
 type Session = { state: string; data: Record<string, string> };
 
-const MENU = [
-  `👋 Welcome to *${WORKSHOP_TITLE}* by NxtWave. It's free, live and takes 60 minutes.`,
-  "Reply with a number:\n1️⃣ Register (30 sec)\n2️⃣ Get my personal AI project idea\n3️⃣ My referrals & rewards\n4️⃣ Ask a question",
-].join("\n\n");
+const LANG_ORDER: Lang[] = ["en", "hi", "te", "ta"];
+const menu = (l: Lang) => m(l, "menu", { title: WORKSHOP_TITLE });
 
 async function load(phone: string): Promise<Session> {
   const row = await one<{ state: string; data: string }>("SELECT state, data FROM wa_sessions WHERE phone = ?", [phone]);
@@ -44,16 +43,21 @@ async function step(phone: string, msg: string, ctx: { ip: string }): Promise<st
   const s = await load(phone);
   const upper = msg.toUpperCase();
 
+  // Typing in Telugu/Hindi/Tamil script switches the conversation to that language.
+  const script = detectScript(msg);
+  if (script) s.data.lang = script;
+  const L: Lang = isLang(s.data.lang) ? s.data.lang : "en";
+
   // "JOIN ABCD1234" is the pre-filled text in every referral wa.me link.
   const join = upper.match(/^JOIN\s+([A-Z0-9]{4,12})$/);
   if (join) {
     s.data.ref = join[1];
     await track("wa_referral_open", { channel: "whatsapp_bot", meta: { ref: join[1] } });
   }
-  if (["HI", "HELLO", "MENU", "START", "0"].includes(upper) || join || s.state === "new") {
+  if (["HI", "HELLO", "MENU", "START", "0"].includes(upper) || join || s.state === "new" || (script && s.state === "menu")) {
     s.state = "menu";
     await save(phone, s);
-    return [join ? `Your friend invited you! 🙌\n\n${MENU}` : MENU];
+    return [join ? `${m(L, "invited")}\n\n${menu(L)}` : menu(L)];
   }
   if (upper === "STATUS") return statusReply(phone);
 
@@ -64,34 +68,50 @@ async function step(phone: string, msg: string, ctx: { ip: string }): Promise<st
         if (existing) return statusReply(phone);
         s.state = "ask_name";
         await save(phone, s);
-        return ["Great! What's your full name?"];
+        return [m(L, "ask_name")];
       }
       if (msg === "2") {
         s.state = "idea_branch";
         await save(phone, s);
-        return [`Which branch are you in?\n${numbered(BRANCHES)}`];
+        return [m(L, "ask_branch_idea", { list: numbered(BRANCHES) })];
       }
       if (msg === "3") return statusReply(phone);
       if (msg === "4") {
         s.state = "faq";
         await save(phone, s);
-        return ["Ask me anything about the workshop 👇"];
+        return [m(L, "faq_prompt")];
       }
-      return [await answerFaq(msg), "Reply MENU for options."];
+      if (msg === "5") {
+        s.state = "pick_lang";
+        await save(phone, s);
+        return [m(L, "pick_lang")];
+      }
+      return [await answerFaq(msg, L), "MENU"];
     }
     case "faq":
-      return [await answerFaq(msg), "Ask another, or reply MENU."];
+      return [await answerFaq(msg, L), "MENU"];
+
+    case "pick_lang": {
+      const n = parseInt(msg, 10);
+      const chosen = n >= 1 && n <= LANG_ORDER.length ? LANG_ORDER[n - 1] : script;
+      if (!chosen) return [m(L, "pick_lang")];
+      s.data.lang = chosen;
+      s.state = "menu";
+      await save(phone, s);
+      await run("UPDATE users SET lang = ? WHERE phone = ?", [chosen, phone]);
+      return [m(chosen, "lang_set"), menu(chosen)];
+    }
 
     case "idea_branch": {
       const branch = pickFrom(BRANCHES, msg);
-      if (!branch) return [`Reply with a number 1-${BRANCHES.length}.`];
+      if (!branch) return [m(L, "reply_number", { n: BRANCHES.length })];
       s.data.branch = branch;
       s.state = "idea_interest";
       await save(phone, s);
-      return ["What are you into? (e.g. cricket, movies, finance, farming, music, gaming)"];
+      return [m(L, "ask_interest")];
     }
     case "idea_interest": {
-      const idea = await generateIdea({ branch: s.data.branch, interest: msg, skill: "beginner" });
+      const idea = await generateIdea({ branch: s.data.branch, interest: msg, skill: "beginner", lang: L });
       s.data.interest = msg;
       s.data.idea = JSON.stringify(idea);
       await track("idea_generated", { channel: "whatsapp_bot" });
@@ -99,53 +119,53 @@ async function step(phone: string, msg: string, ctx: { ip: string }): Promise<st
       s.state = registered ? "menu" : "idea_then_register";
       await save(phone, s);
       return [
-        `🚀 *${idea.title}*\n${idea.pitch}\n\n${idea.steps.map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\n📄 Resume line: _${idea.resume_line}_`,
-        registered ? "You'll build this live in the workshop! Reply MENU for options." : "You'll build this live in the workshop. Reply *YES* to lock your free seat.",
+        `🚀 *${idea.title}*\n${idea.pitch}\n\n${idea.steps.map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\n📄 _${idea.resume_line}_`,
+        registered ? m(L, "idea_registered") : m(L, "idea_register"),
       ];
     }
     case "idea_then_register": {
       if (upper === "YES" || msg === "1") {
         s.state = "ask_name";
         await save(phone, s);
-        return ["What's your full name?"];
+        return [m(L, "ask_name")];
       }
       s.state = "menu";
       await save(phone, s);
-      return [MENU];
+      return [menu(L)];
     }
     case "ask_name":
-      if (msg.length < 2) return ["Please send your full name."];
+      if (msg.length < 2) return [m(L, "ask_name")];
       s.data.name = msg;
       s.state = "ask_email";
       await save(phone, s);
-      return [`Thanks ${msg.split(" ")[0]}! Your email? (we send the joining link there too)`];
+      return [m(L, "ask_email", { first: msg.split(" ")[0] })];
     case "ask_email":
-      if (!/^\S+@\S+\.\S+$/.test(msg)) return ["That doesn't look like an email. Try again?"];
+      if (!/^\S+@\S+\.\S+$/.test(msg)) return [m(L, "bad_email")];
       s.data.email = msg.toLowerCase();
       s.state = "ask_college";
       await save(phone, s);
-      return ["Which college are you from? (full name)"];
+      return [m(L, "ask_college")];
     case "ask_college":
       s.data.college = msg;
       if (s.data.branch) {
         s.state = "ask_year";
         await save(phone, s);
-        return [`Which year?\n${numbered(YEARS)}`];
+        return [m(L, "ask_year", { list: numbered(YEARS) })];
       }
       s.state = "ask_branch";
       await save(phone, s);
-      return [`Your branch?\n${numbered(BRANCHES)}`];
+      return [m(L, "ask_branch", { list: numbered(BRANCHES) })];
     case "ask_branch": {
       const branch = pickFrom(BRANCHES, msg);
-      if (!branch) return [`Reply with a number 1-${BRANCHES.length}.`];
+      if (!branch) return [m(L, "reply_number", { n: BRANCHES.length })];
       s.data.branch = branch;
       s.state = "ask_year";
       await save(phone, s);
-      return [`Which year?\n${numbered(YEARS)}`];
+      return [m(L, "ask_year", { list: numbered(YEARS) })];
     }
     case "ask_year": {
       const year = pickFrom(YEARS, msg);
-      if (!year) return [`Reply with a number 1-${YEARS.length}.`];
+      if (!year) return [m(L, "reply_number", { n: YEARS.length })];
       const res = await registerUser(
         {
           name: s.data.name,
@@ -157,30 +177,28 @@ async function step(phone: string, msg: string, ctx: { ip: string }): Promise<st
           ref: s.data.ref,
           channel: "whatsapp_bot",
           idea: s.data.idea ? JSON.parse(s.data.idea) : undefined,
+          lang: L,
         },
         { ip: ctx.ip, device: `wa:${phone}` },
       );
       if (!res.ok) {
         s.state = "ask_email";
         await save(phone, s);
-        return [`Hmm, ${res.error}. Let's retry. What's your email?`];
+        return [`⚠ ${res.error}`, m(L, "ask_email", { first: s.data.name.split(" ")[0] })];
       }
       // The message came from this number, so WhatsApp has already proven the phone. No OTP needed.
       await run("UPDATE users SET verified = 1, verified_at = ?, otp_hash = NULL WHERE id = ? AND verified = 0", [now(), res.userId]);
       await track("verified", { userId: res.userId, channel: "whatsapp_bot" });
       s.state = "menu";
-      s.data = {};
+      s.data = { lang: L };
       await save(phone, s);
       const { workshop } = await campaignClock();
-      return [
-        `✅ You're registered for *${WORKSHOP_TITLE}*!\n🗓 ${fmtIST(workshop)}\n💻 Laptop + Chrome is all you need.`,
-        `🎁 Bring friends, unlock rewards. Forward this:\n\n${referralLink(res.refCode)}\n\nReply STATUS anytime to see your referrals.`,
-      ];
+      return [m(L, "registered", { title: WORKSHOP_TITLE, when: fmtIST(workshop) }), m(L, "share", { link: referralLink(res.refCode) })];
     }
     default:
       s.state = "menu";
       await save(phone, s);
-      return [MENU];
+      return [menu(L)];
   }
 }
 

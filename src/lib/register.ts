@@ -21,6 +21,7 @@ export const RegisterSchema = z.object({
   visitorId: z.string().optional().nullable(),
   idea: z.unknown().optional(),
   otpVia: z.enum(["email", "whatsapp"]).default("email"),
+  lang: z.enum(["en", "hi", "te", "ta"]).default("en"),
 });
 export type RegisterInput = z.input<typeof RegisterSchema>;
 
@@ -60,9 +61,9 @@ export async function registerUser(raw: RegisterInput, ctx: { ip: string; device
   while (await one("SELECT 1 FROM users WHERE ref_code = ?", [refCode])) refCode = refCodeFor(d.name);
 
   const r = await run(
-    `INSERT INTO users(name, email, phone, college_id, branch, year, ref_code, referred_by, ambassador_id, channel, variant, idea_json,
+    `INSERT INTO users(name, email, phone, college_id, branch, year, ref_code, referred_by, ambassador_id, channel, variant, lang, idea_json,
        ip_hash, device_hash, fraud_score, fraud_reasons, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       d.name,
       d.email,
@@ -75,6 +76,7 @@ export async function registerUser(raw: RegisterInput, ctx: { ip: string; device
       amb ? Number(amb.id) : null,
       channel,
       d.variant ?? null,
+      d.lang,
       d.idea ? JSON.stringify(d.idea) : null,
       ipHash,
       deviceHash,
@@ -85,7 +87,8 @@ export async function registerUser(raw: RegisterInput, ctx: { ip: string; device
   );
   const userId = Number(r.lastInsertRowid);
   await track("registered", { visitorId: d.visitorId ?? undefined, userId, channel, variant: d.variant ?? undefined });
-  await scheduleDrip(userId, d.name, refCode);
+  const ideaTitle = (d.idea as { title?: string } | undefined)?.title;
+  await scheduleDrip(userId, d.name, refCode, d.lang, ideaTitle);
 
   const code = await issueOtp(userId);
   const via = await deliverOtp(d.otpVia, d.email, d.phone, code);

@@ -2,7 +2,9 @@ import { one } from "@/lib/db";
 import { campaignClock } from "@/lib/growth";
 import { listColleges } from "@/lib/growth";
 import { leaderboard } from "@/lib/metrics";
+import { headers } from "next/headers";
 import Funnel from "@/components/Funnel";
+import { isLang, langFromAcceptLanguage } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +15,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
     "SELECT u.name, c.name AS college FROM users u JOIN colleges c ON c.id = u.college_id WHERE u.ref_code = ?",
     [ref],
   ) : undefined;
+  const initialLang = isLang(sp.lang) ? sp.lang : langFromAcceptLanguage((await headers()).get("accept-language"));
   const [colleges, board, clock] = await Promise.all([listColleges(), leaderboard(), campaignClock()]);
 
   return (
@@ -24,6 +27,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
       registered={board.total}
       topColleges={board.colleges.slice(0, 3).map((c) => ({ name: c.name, n: c.verified }))}
       workshopAt={clock.workshop}
+      initialLang={initialLang}
     />
   );
 }

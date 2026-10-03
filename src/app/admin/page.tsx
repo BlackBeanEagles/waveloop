@@ -7,6 +7,7 @@ import { post } from "@/lib/client";
 import Copilot from "@/components/admin/Copilot";
 import Variants, { type V } from "@/components/admin/Variants";
 import ReferralTree from "@/components/admin/ReferralTree";
+import ShowUp from "@/components/admin/ShowUp";
 
 // Validated categorical slots 1-2 (reference palette, in fixed order).
 const S1 = "#2a78d6";
@@ -247,6 +248,8 @@ export default function Admin() {
           )}
         </Panel>
       </div>
+
+      <ShowUp refreshKey={Math.floor(tick / 3)} />
 
       <div className="mb-6">
         <ReferralTree refreshKey={Math.floor(tick / 3)} />

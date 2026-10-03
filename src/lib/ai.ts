@@ -2,6 +2,9 @@ import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
 import { WORKSHOP_TITLE } from "./config";
+import { LANGS, isLang } from "./i18n";
+
+const langName = (l?: string) => (isLang(l) ? LANGS[l].label : "English");
 
 const MODEL = "claude-opus-5-5";
 
@@ -24,7 +27,7 @@ export const IdeaSchema = z.object({
 });
 export type Idea = z.infer<typeof IdeaSchema> & { source: "claude" | "template" };
 
-export async function generateIdea(input: { branch: string; interest: string; skill: string }): Promise<Idea> {
+export async function generateIdea(input: { branch: string; interest: string; skill: string; lang?: string }): Promise<Idea> {
   const c = claude();
   if (c) {
     try {
@@ -36,7 +39,9 @@ export async function generateIdea(input: { branch: string; interest: string; sk
           `You design starter AI projects for Indian final-year engineering students attending a free 60-minute live workshop called "${WORKSHOP_TITLE}". ` +
           "The project must be buildable in 60 minutes in a browser by a beginner using free tools (Google Colab, Gemini/ChatGPT/Claude free tiers, Streamlit, Hugging Face Spaces, Lovable, n8n). " +
           "Tie it to the student's branch so it reads well on a placement resume. Keep it concrete and specific, never generic like 'a chatbot'. " +
-          "steps: exactly 4 short steps, each doable in about 15 minutes. tools: 2-4 free tools. resume_line: one line starting with a past-tense verb.",
+          "steps: exactly 4 short steps, each doable in about 15 minutes. tools: 2-4 free tools. resume_line: one line starting with a past-tense verb. " +
+          `Write title, pitch, why_it_fits_you and steps in ${langName(input.lang)} (simple, conversational, the way students actually speak; English tech words like 'app' or 'API' are fine). ` +
+          "Always write tools and resume_line in English, since the resume is in English.",
         messages: [
           {
             role: "user",
@@ -211,8 +216,9 @@ const FAQ: [RegExp, string][] = [
   [/(record|recording|miss)/i, "Registered students who refer 1 friend get the recording too."],
 ];
 
-export async function answerFaq(question: string): Promise<string> {
-  for (const [re, ans] of FAQ) if (re.test(question)) return ans;
+export async function answerFaq(question: string, lang: string = "en"): Promise<string> {
+  // Keyword FAQ answers are English-only; non-English questions go to Claude when available.
+  if (lang === "en" || !process.env.ANTHROPIC_API_KEY) for (const [re, ans] of FAQ) if (re.test(question)) return ans;
   const c = claude();
   if (c) {
     try {
@@ -223,7 +229,8 @@ export async function answerFaq(question: string): Promise<string> {
         system:
           `You are the WhatsApp assistant for NxtWave's free 60-minute live workshop "${WORKSHOP_TITLE}" for final-year engineering students. ` +
           "Facts: free; 7 PM IST; laptop + Chrome only; certificate after submitting a project; referral rewards. " +
-          "Answer in at most 2 short sentences, WhatsApp style. If you don't know, say a team member will reply. Never invent dates or prices.",
+          "Answer in at most 2 short sentences, WhatsApp style. If you don't know, say a team member will reply. Never invent dates or prices. " +
+          `Reply in ${langName(lang)}.`,
         messages: [{ role: "user", content: question }],
       });
       if (res.stop_reason !== "refusal") {

@@ -1,6 +1,7 @@
 import { createHash, randomInt } from "crypto";
 import { all, one, run, now } from "./db";
 import { COLLEGES, REWARDS, WORKSHOP_TITLE, siteUrl } from "./config";
+import { m } from "./i18n";
 
 const SECRET = process.env.APP_SECRET ?? "waveloop-dev-secret";
 
@@ -203,20 +204,27 @@ export function whatsappShareText(name: string, code: string, ideaTitle?: string
 
 // ---------- drip schedule ----------
 
-export async function scheduleDrip(userId: number, name: string, code: string) {
+export async function scheduleDrip(userId: number, name: string, code: string, lang: string = "en", ideaTitle?: string) {
   const { workshop } = await campaignClock();
   const w = new Date(workshop).getTime();
   const first = name.split(" ")[0];
   const link = referralLink(code);
+  const live = `${siteUrl()}/live`;
+  const v = { first, link, live, title: WORKSHOP_TITLE, when: fmtIST(workshop), idea: ideaTitle ?? "your AI project" };
   const steps: { template: string; at: number; body: string }[] = [
-    { template: "welcome", at: Date.now(), body: `You're in, ${first}! 🎉 "${WORKSHOP_TITLE}" is on ${fmtIST(workshop)}. Bring friends and unlock rewards: ${link}` },
+    { template: "welcome", at: Date.now(), body: m(lang, "welcome", v) },
     { template: "referral_nudge", at: Date.now() + 6 * 3_600_000, body: `${first}, you're 1 referral away from a priority seat + recording access. Share your link: ${link}` },
-    { template: "reminder_24h", at: w - 24 * 3_600_000, body: `Tomorrow 7 PM: build your first AI project live. Keep a laptop with Chrome ready. No installs needed.` },
-    { template: "reminder_1h", at: w - 3_600_000, body: `Starting in 1 hour! Join link: ${siteUrl()}/live` },
-    { template: "live_now", at: w, body: `We're LIVE. Jump in: ${siteUrl()}/live` },
-    { template: "submit_project", at: w + 2 * 3_600_000, body: `Great session! Submit your project for an AI review + certificate: ${siteUrl()}/submit` },
+    { template: "reminder_24h", at: w - 24 * 3_600_000, body: m(lang, "reminder_24h", v) },
+    // Rescue messages: queued for everyone, sent only if the show-up model scores the person as likely to miss it.
+    { template: "rescue_3h", at: w - 3 * 3_600_000, body: m(lang, "rescue_3h", v) },
+    { template: "reminder_1h", at: w - 3_600_000, body: m(lang, "reminder_1h", v) },
+    { template: "rescue_15m", at: w - 15 * 60_000, body: m(lang, "rescue_15m", v) },
+    { template: "live_now", at: w, body: m(lang, "live_now", v) },
+    { template: "submit_project", at: w + 2 * 3_600_000, body: `Great session! Submit your project for an AI review + certificate: ${live.replace("/live", "/submit")}` },
   ];
   for (const s of steps) {
+    // Steps whose time already passed (late sign-ups) are skipped, except the welcome.
+    if (s.template !== "welcome" && s.at < Date.now()) continue;
     await run("INSERT INTO outbox(user_id, channel, template, body, send_at) VALUES (?, 'whatsapp', ?, ?, ?)", [
       userId,
       s.template,
