@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-ink: #0b1020;
+  --color-brand: #3b5bdb;
+  --color-brand-dark: #1b2a6b;
+  --color-sun: #ffd43b;
+}
+
+body {
+  background: #f6f7fb;
+  color: #0b1020;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+@utility card {
+    @apply rounded-2xl border border-slate-200 bg-white p-5 shadow-sm;
+}
+
+@utility btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+    @apply btn bg-brand text-white hover:bg-brand-dark;
+}
+
+@utility btn-ghost {
+    @apply btn border border-slate-300 bg-white text-ink hover:bg-slate-50;
+}
+
+@utility btn-wa {
+    @apply btn bg-[#25d366] text-white hover:bg-[#1ebe5a];
+}
+
+@utility input {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20;
+}
+
+@utility label {
+    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500;
+}
+
+@utility pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}
