@@ -18,6 +18,9 @@ The core bet: ₹2,000 cannot buy 500 sign-ups through ads (roughly ₹20–40 p
 | Drip engine | `/api/cron/drip` | A 6-step WhatsApp sequence (welcome, referral nudge, reminders 24h and 1h before, live now, submit your project). Rules are checked at send time. |
 | Live workshop room | `/live` | Polls and upvoted Q&A, with host controls |
 | AI project grading | `/submit`, `/cert/[id]` | Claude scores the project on a 5-part rubric (reading the GitHub README) and issues a shareable certificate that loops back into the next campaign |
+| Growth copilot | `/admin` | Reads live metrics, compares each funnel step to typical rates, names the biggest leak, proposes 3 ranked experiments, writes 2 new headlines (one click sends them into the bandit) and an ambassador post. Uses Claude with structured output; without a key, a rules engine produces the same shape. Says "not enough data" below 30 visitors instead of guessing. |
+| Self-optimising headlines | `/`, `/admin` | Thompson-sampling bandit: each visitor gets the headline drawn from each arm's Beta posterior (sticky per visitor), so traffic shifts to winners automatically. Shows P(best) per arm by Monte Carlo; pause, resume or add challengers. |
+| Referral cascades | `/admin` | A tree graph of who brought whom (d3-hierarchy), with the largest cascade, deepest chain, people per generation and the same-college vs cross-college spread. |
 | Growth dashboard | `/admin` | Progress against target pace, the funnel, channels, A/B significance (z-test), viral coefficient, end-of-week projection, the fraud review queue and the outbox. Refreshes every 5 seconds from real activity only. **Clear all data** wipes everything and restarts the 7-day clock. |
 
 ## Mock vs real

@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BRANCHES, VARIANTS, YEARS, WORKSHOP_TITLE, TARGET } from "@/lib/config";
-import { abVariant, post, visitorId } from "@/lib/client";
+import { BRANCHES, YEARS, WORKSHOP_TITLE, TARGET } from "@/lib/config";
+import { post, visitorId } from "@/lib/client";
 
 type Idea = { title: string; pitch: string; why_it_fits_you: string; steps: string[]; tools: string[]; resume_line: string; source: string };
 
@@ -19,7 +19,8 @@ type Props = {
 
 export default function Funnel(p: Props) {
   const router = useRouter();
-  const [variant, setVariant] = useState<"A" | "B">("A");
+  const [variant, setVariant] = useState<string>("");
+  const [copy, setCopy] = useState<{ headline: string; sub: string } | null>(null);
   const [vid, setVid] = useState("");
   const [stage, setStage] = useState<"idea" | "register" | "otp">("idea");
   const [idea, setIdea] = useState<Idea | null>(null);
@@ -32,14 +33,18 @@ export default function Funnel(p: Props) {
   const formStarted = useRef(false);
 
   useEffect(() => {
-    const v = abVariant();
     const id = visitorId();
-    setVariant(v);
     setVid(id);
-    post("/api/track", { type: "page_view", visitorId: id, variant: v, channel: p.channel });
+    const forced = new URLSearchParams(location.search).get("v");
+    fetch(`/api/variant${forced ? `?v=${encodeURIComponent(forced)}` : ""}`)
+      .then((r) => r.json())
+      .then((v: { key: string; headline: string; sub: string }) => {
+        setVariant(v.key);
+        setCopy({ headline: v.headline, sub: v.sub });
+        post("/api/track", { type: "page_view", visitorId: id, variant: v.key, channel: p.channel });
+      });
   }, [p.channel]);
 
-  const copy = VARIANTS[variant];
   const countdown = useCountdown(p.workshopAt);
 
   function startForm() {
@@ -103,8 +108,8 @@ export default function Funnel(p: Props) {
           </div>
         )}
         <div className="pill w-fit bg-brand/10 text-brand">Free · Live · 60 minutes · For final-year engineers</div>
-        <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">{copy.headline}</h1>
-        <p className="text-lg text-slate-600">{copy.sub}</p>
+        <h1 className={`text-4xl font-extrabold leading-tight tracking-tight transition-opacity sm:text-5xl ${copy ? "opacity-100" : "opacity-0"}`}>{copy?.headline ?? "Build your first AI project in 60 minutes."}</h1>
+        <p className={`text-lg text-slate-600 transition-opacity ${copy ? "opacity-100" : "opacity-0"}`}>{copy?.sub ?? " "}</p>
 
         <div className="grid grid-cols-3 gap-3 text-center">
           {countdown.map(([n, l]) => (

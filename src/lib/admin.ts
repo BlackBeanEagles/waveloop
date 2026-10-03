@@ -7,7 +7,7 @@ export async function clearAllData() {
   await db.executeMultiple(`
     DELETE FROM votes; DELETE FROM polls; DELETE FROM questions; DELETE FROM submissions;
     DELETE FROM outbox; DELETE FROM wa_messages; DELETE FROM wa_sessions; DELETE FROM events;
-    DELETE FROM users; DELETE FROM ambassadors; DELETE FROM settings;
+    DELETE FROM users; DELETE FROM ambassadors; DELETE FROM settings; DELETE FROM variants; DELETE FROM copilot_runs;
   `);
   await ensureColleges();
   await setSetting("campaign_start", new Date().toISOString());

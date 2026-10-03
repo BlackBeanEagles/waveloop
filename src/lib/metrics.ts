@@ -84,18 +84,6 @@ export async function dashboard() {
      FROM users GROUP BY channel ORDER BY verified DESC`,
   );
 
-  // A/B: conversion = registrations / unique visitors per variant
-  const abViews = await all<{ variant: string; n: number }>(
-    "SELECT variant, COUNT(DISTINCT visitor_id) AS n FROM events WHERE type = 'page_view' AND variant IS NOT NULL GROUP BY variant",
-  );
-  const abRegs = await all<{ variant: string; n: number }>("SELECT variant, COUNT(*) AS n FROM users WHERE variant IS NOT NULL GROUP BY variant");
-  const ab = ["A", "B"].map((v) => {
-    const views = n(abViews.find((x) => x.variant === v)?.n);
-    const regs = n(abRegs.find((x) => x.variant === v)?.n);
-    return { variant: v, views, regs, rate: views ? regs / views : 0 };
-  });
-  const abSignificance = twoProportionZ(ab[0].regs, ab[0].views, ab[1].regs, ab[1].views);
-
   const ambassadors = await all<{ name: string; code: string; college: string; regs: number; verified: number; groups: number }>(
     `SELECT a.name, a.code, c.name AS college, a.groups_reached AS groups, COUNT(u.id) AS regs,
             SUM(CASE WHEN u.verified = 1 AND u.fraud_score < ${FRAUD_THRESHOLD} THEN 1 ELSE 0 END) AS verified
@@ -139,31 +127,8 @@ export async function dashboard() {
     funnel,
     series,
     byChannel: byChannel.map((c) => ({ channel: String(c.channel), regs: n(c.regs), verified: n(c.verified) })),
-    ab,
-    abSignificance,
     ambassadors: ambassadors.map((a) => ({ ...a, regs: n(a.regs), verified: n(a.verified), groups: n(a.groups) })),
     fraudQueue: fraudQueue.map((f) => ({ ...f, fraud_score: n(f.fraud_score), reasons: f.fraud_reasons ? (JSON.parse(String(f.fraud_reasons)) as string[]) : [] })),
     outbox: outbox.map((o) => ({ ...o, n: n(o.n) })),
   };
-}
-
-// Two-proportion z-test, returns the z score and an approximate two-sided p-value.
-function twoProportionZ(x1: number, n1: number, x2: number, n2: number) {
-  if (!n1 || !n2) return { z: 0, p: 1, winner: null as string | null };
-  const p1 = x1 / n1;
-  const p2 = x2 / n2;
-  const p = (x1 + x2) / (n1 + n2);
-  const se = Math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2));
-  if (!se) return { z: 0, p: 1, winner: null };
-  const z = (p2 - p1) / se;
-  const pValue = 2 * (1 - normalCdf(Math.abs(z)));
-  return { z, p: pValue, winner: pValue < 0.05 ? (z > 0 ? "B" : "A") : null };
-}
-
-function normalCdf(x: number) {
-  // Abramowitz-Stegun approximation
-  const t = 1 / (1 + 0.2316419 * x);
-  const d = 0.3989423 * Math.exp((-x * x) / 2);
-  const prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
-  return 1 - prob;
 }

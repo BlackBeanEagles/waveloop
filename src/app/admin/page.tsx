@@ -4,6 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
 import { CHANNEL_LABEL } from "@/lib/config";
 import { post } from "@/lib/client";
+import Copilot from "@/components/admin/Copilot";
+import Variants, { type V } from "@/components/admin/Variants";
+import ReferralTree from "@/components/admin/ReferralTree";
 
 // Validated categorical slots 1-2 (reference palette, in fixed order).
 const S1 = "#2a78d6";
@@ -17,8 +20,6 @@ type D = {
   funnel: { stage: string; value: number }[];
   series: { day: string; registrations: number | null; cumulative: number | null; target: number }[];
   byChannel: { channel: string; regs: number; verified: number }[];
-  ab: { variant: string; views: number; regs: number; rate: number }[];
-  abSignificance: { z: number; p: number; winner: string | null };
   ambassadors: { name: string; code: string; college: string; regs: number; verified: number; groups: number }[];
   fraudQueue: { id: number; name: string; email: string; fraud_score: number; reasons: string[]; created_at: string }[];
   outbox: { template: string; status: string; n: number }[];
@@ -31,6 +32,8 @@ export default function Admin() {
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
+  const [variants, setVariants] = useState<V[]>([]);
+  const [tick, setTick] = useState(0);
   const [key, setKey] = useState("");
 
   const load = useCallback(async () => {
@@ -39,11 +42,16 @@ export default function Admin() {
     setLocked(false);
     if (m.ok) setD(await m.json());
     if (o.ok) setMsgs((await o.json()).messages);
+    const v = await fetch("/api/admin/variants", { cache: "no-store" });
+    if (v.ok) setVariants((await v.json()).variants);
   }, []);
 
   useEffect(() => {
     load();
-    const t = setInterval(load, 5000);
+    const t = setInterval(() => {
+      load();
+      setTick((x) => x + 1);
+    }, 5000);
     return () => clearInterval(t);
   }, [load]);
 
@@ -119,6 +127,8 @@ export default function Admin() {
         <Kpi big={`${k.attended}`} sub="checked in live" hint={k.counted ? `${Math.round((k.attended / k.counted) * 100)}% show-up rate` : "Attendance"} />
       </div>
 
+      <Copilot onVariantAdded={load} />
+
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
         <Panel title="Cumulative registrations vs target pace">
           <ResponsiveContainer width="100%" height={260}>
@@ -172,35 +182,7 @@ export default function Admin() {
           </ResponsiveContainer>
         </Panel>
 
-        <Panel title="A/B test: hero headline">
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase text-slate-500">
-              <tr>
-                <th className="py-1">Variant</th>
-                <th>Visitors</th>
-                <th>Regs</th>
-                <th>Conv.</th>
-              </tr>
-            </thead>
-            <tbody>
-              {d.ab.map((v) => (
-                <tr key={v.variant} className="border-t border-slate-100">
-                  <td className="py-2 font-semibold">
-                    {v.variant} <span className="text-xs font-normal text-slate-500">{v.variant === "A" ? "“first AI project”" : "“placements hook”"}</span>
-                  </td>
-                  <td className="tabular-nums">{v.views}</td>
-                  <td className="tabular-nums">{v.regs}</td>
-                  <td className="tabular-nums font-semibold">{(v.rate * 100).toFixed(1)}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className={`mt-4 rounded-xl px-3 py-2 text-sm ${d.abSignificance.winner ? "bg-green-50 text-green-900" : "bg-slate-50 text-slate-700"}`}>
-            {d.abSignificance.winner
-              ? `✓ Variant ${d.abSignificance.winner} wins (z = ${d.abSignificance.z.toFixed(2)}, p = ${d.abSignificance.p.toFixed(3)}). Send all traffic to ${d.abSignificance.winner}.`
-              : `Not significant yet (p = ${d.abSignificance.p.toFixed(2)}). Keep splitting traffic.`}
-          </div>
-        </Panel>
+        <Variants variants={variants} reload={load} />
       </div>
 
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
@@ -264,6 +246,10 @@ export default function Admin() {
             </ul>
           )}
         </Panel>
+      </div>
+
+      <div className="mb-6">
+        <ReferralTree refreshKey={Math.floor(tick / 3)} />
       </div>
 
       <Panel title="WhatsApp drip engine">

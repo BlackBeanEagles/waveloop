@@ -4,7 +4,7 @@ import { createClient, type Client, type InValue } from "@libsql/client";
 const url = process.env.DATABASE_URL ?? "file:waveloop.db";
 const authToken = process.env.DATABASE_AUTH_TOKEN;
 
-const globalForDb = globalThis as unknown as { __db?: Client; __dbReady?: Promise<void> };
+const globalForDb = globalThis as unknown as { __db?: Client; __dbReady?: Promise<void>; __dbSchema?: string };
 
 export const db: Client = globalForDb.__db ?? createClient({ url, authToken });
 globalForDb.__db = db;
@@ -122,6 +122,20 @@ CREATE TABLE IF NOT EXISTS submissions (
   graded_by TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS variants (
+  key TEXT PRIMARY KEY,
+  headline TEXT NOT NULL,
+  sub TEXT NOT NULL,
+  source TEXT NOT NULL DEFAULT 'manual',
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS copilot_runs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  output TEXT NOT NULL,
+  engine TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
@@ -129,7 +143,9 @@ CREATE TABLE IF NOT EXISTS settings (
 `;
 
 export function ready(): Promise<void> {
-  if (!globalForDb.__dbReady) {
+  // Re-run when the schema text changes (dev hot reload keeps globalThis alive). Every statement is IF NOT EXISTS.
+  if (!globalForDb.__dbReady || globalForDb.__dbSchema !== SCHEMA) {
+    globalForDb.__dbSchema = SCHEMA;
     globalForDb.__dbReady = db.executeMultiple(SCHEMA);
   }
   return globalForDb.__dbReady;
