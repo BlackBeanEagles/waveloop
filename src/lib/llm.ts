@@ -108,7 +108,7 @@ async function gemini(system: string, user: string, json: boolean, maxTokens = 4
 }
 
 async function groq(system: string, user: string, json: boolean, maxTokens = 4000) {
-  const model = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+  const model = process.env.GROQ_MODEL ?? "openai/gpt-oss-120b";
   const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
