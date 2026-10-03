@@ -1,10 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
 import { dashboard } from "./metrics";
 import { variantStats } from "./bandit";
 import { run, now, one } from "./db";
 import { WORKSHOP_TITLE, CHANNEL_LABEL } from "./config";
+import { llmJson, type Provider } from "./llm";
 
 export const CopilotSchema = z.object({
   headline_finding: z.string(),
@@ -47,18 +46,15 @@ async function snapshot() {
   return { d, variants, steps };
 }
 
-export async function runCopilot(): Promise<{ output: CopilotOutput; engine: "claude" | "rules"; id: number }> {
+export async function runCopilot(): Promise<{ output: CopilotOutput; engine: Provider | "rules"; id: number }> {
   const snap = await snapshot();
   let output: CopilotOutput | null = null;
-  let engine: "claude" | "rules" = "rules";
+  let engine: Provider | "rules" = "rules";
 
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      output = await claudeCopilot(snap);
-      engine = "claude";
-    } catch (err) {
-      console.error("copilot: Claude failed, using rules", err);
-    }
+  const ai = await aiCopilot(snap);
+  if (ai) {
+    output = ai.data;
+    engine = ai.provider;
   }
   output ??= rulesCopilot(snap);
   const r = await run("INSERT INTO copilot_runs(output, engine, created_at) VALUES (?, ?, ?)", [JSON.stringify(output), engine, now()]);
@@ -72,8 +68,7 @@ export async function lastCopilotRun() {
 
 type Snap = Awaited<ReturnType<typeof snapshot>>;
 
-async function claudeCopilot({ d, variants, steps }: Snap): Promise<CopilotOutput> {
-  const client = new Anthropic();
+async function aiCopilot({ d, variants, steps }: Snap) {
   const metrics = {
     campaign_day: d.clock.dayNumber,
     target_verified_registrations: d.kpis.target,
@@ -84,10 +79,9 @@ async function claudeCopilot({ d, variants, steps }: Snap): Promise<CopilotOutpu
     top_ambassadors: d.ambassadors.slice(0, 5).map((a) => ({ college: a.college, verified: a.verified })),
     fraud_flagged: d.kpis.flagged,
   };
-  const res = await client.messages.parse({
-    model: "claude-opus-5-5",
-    max_tokens: 8000,
-    output_config: { effort: "medium", format: zodOutputFormat(CopilotSchema) },
+  return llmJson(CopilotSchema, {
+    effort: "medium",
+    maxTokens: 8000,
     system:
       `You are the growth analyst for a 7-day campaign to get 500 final-year engineering students in India to register for NxtWave's free live workshop "${WORKSHOP_TITLE}". ` +
       "Budget is ₹2,000, spent on referral prizes, not ads. Channels: college WhatsApp groups via campus ambassadors, peer referrals, LinkedIn, Instagram, email. " +
@@ -96,10 +90,8 @@ async function claudeCopilot({ d, variants, steps }: Snap): Promise<CopilotOutpu
       "actions: exactly 3, ranked by expected registrations gained per hour of effort, each a concrete experiment runnable today. " +
       "new_variants: exactly 2 landing-page headline+subline pairs aimed at the biggest leak, under 70 and 160 characters, plain language a final-year student uses. " +
       "whatsapp_post: one ready-to-forward message for ambassadors, under 450 characters, with {link} where the link goes. risks: 1-3 short items.",
-    messages: [{ role: "user", content: `Live metrics:\n${JSON.stringify(metrics, null, 2)}` }],
+    user: `Live metrics:\n${JSON.stringify(metrics, null, 2)}`,
   });
-  if (res.stop_reason === "refusal" || !res.parsed_output) throw new Error(`copilot: no parsed output (${res.stop_reason})`);
-  return res.parsed_output;
 }
 
 // Deterministic fallback so the copilot still works without an API key. Same output shape, every claim traceable to a number.

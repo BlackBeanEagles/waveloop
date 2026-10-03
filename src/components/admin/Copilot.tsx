@@ -55,7 +55,7 @@ export default function Copilot({ onVariantAdded }: { onVariantAdded: () => void
           <h2 className="text-lg font-bold">🧠 Growth copilot</h2>
           <p className="text-xs text-ink-soft">
             Reads the live numbers, finds the biggest leak, proposes the next 3 experiments and writes new headlines for the bandit.
-            {run && ` Last run ${new Date(run.created_at).toLocaleTimeString()} · ${run.engine === "claude" ? "Claude" : "rules engine (no API key)"}`}
+            {run && ` Last run ${new Date(run.created_at).toLocaleTimeString()} · ${({ gemini: "Gemini", groq: "Groq", claude: "Claude" } as Record<string, string>)[run.engine] ?? "rules engine (no API key)"}`}
           </p>
         </div>
         <button className="btn-primary" disabled={busy} onClick={analyse}>

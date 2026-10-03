@@ -133,7 +133,7 @@ export default function Help() {
                 </button>
               </div>
             )}
-            <p className="text-xs text-ink-soft/70">Answered by {a.engine === "claude" ? "Claude" : "the common-errors guide (no API key)"} · ticket #{res!.ticketId}</p>
+            <p className="text-xs text-ink-soft/70">Answered by {({ gemini: "Gemini", groq: "Groq", claude: "Claude" } as Record<string, string>)[a.engine] ?? "the common-errors guide (no API key)"} · ticket #{res!.ticketId}</p>
             {status === "open" && (
               <div className="grid grid-cols-2 gap-2">
                 <button className="btn-primary" onClick={() => feedback("solved")}>

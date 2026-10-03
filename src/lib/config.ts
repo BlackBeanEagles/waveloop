@@ -83,7 +83,7 @@ export function siteUrl() {
 }
 
 export const integrations = {
-  claude: () => Boolean(process.env.ANTHROPIC_API_KEY),
+  ai: () => Boolean(process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || process.env.ANTHROPIC_API_KEY),
   email: () => Boolean(process.env.RESEND_API_KEY),
   // Meta WhatsApp Cloud API: free, official; preferred over Twilio when both are set.
   metaWhatsApp: () => Boolean(process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID),

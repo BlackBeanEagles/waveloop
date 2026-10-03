@@ -12,6 +12,6 @@ export async function GET(req: NextRequest) {
   return json({
     ...data,
     ephemeralDb,
-    integrations: { claude: integrations.claude(), email: integrations.email(), whatsapp: integrations.metaWhatsApp() || integrations.twilio(), hostedDb: integrations.hostedDb() },
+    integrations: { ai: integrations.ai(), email: integrations.email(), whatsapp: integrations.metaWhatsApp() || integrations.twilio(), hostedDb: integrations.hostedDb() },
   });
 }

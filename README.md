@@ -31,7 +31,7 @@ The core bet: ₹2,000 cannot buy 500 sign-ups through ads (roughly ₹20–40 p
 
 Everything runs with **zero keys**. Each integration switches to the real service when its environment variable is set (see `.env.example`):
 
-- `ANTHROPIC_API_KEY`: real Claude ideas, grading and FAQ answers (otherwise templates and a heuristic, labelled in the UI)
+- `GEMINI_API_KEY` or `GROQ_API_KEY` (free) or `ANTHROPIC_API_KEY`: real AI for ideas, grading, copilot, help desk and FAQ answers. One module (`src/lib/llm.ts`) talks to whichever is set, validates every answer against the feature's schema, retries once, and falls back to templates/rules (labelled in the UI)
 - `RESEND_API_KEY`: real email verification codes (otherwise demo mode shows the code on screen)
 - `WHATSAPP_*`: real WhatsApp bot via Meta's free Cloud API (webhook `/api/whatsapp/meta`, signature-checked). Replies are free within 24h of a student's message; proactive drips outside that window need an approved template
 - `TWILIO_*`: alternative WhatsApp provider (otherwise sends are logged as "no-provider")

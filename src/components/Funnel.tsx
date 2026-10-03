@@ -335,7 +335,7 @@ export function IdeaCard({ idea, compact = false, labels }: { idea: Idea; compac
       </svg>
       <div className="relative mb-1 flex items-center justify-between text-xs uppercase tracking-wide text-white/70">
         <span>{l.your}</span>
-        <span>{idea.source === "claude" ? l.ai : l.tpl}</span>
+        <span>{idea.source === "template" ? l.tpl : l.ai}</span>
       </div>
       <h3 className="relative text-2xl font-bold">{idea.title}</h3>
       <p className="relative mt-1 text-white/90">{idea.pitch}</p>

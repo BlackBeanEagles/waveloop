@@ -1,10 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
 import { all, one, run, now } from "./db";
 import { WORKSHOP_TITLE } from "./config";
 import { LANGS, isLang } from "./i18n";
 import { emit } from "./webhooks";
+import { llmJson, type Provider } from "./llm";
 
 // Live-workshop help desk: 500 people building at once and a handful of mentors. Claude answers first,
 // mentors only see what Claude couldn't solve.
@@ -23,7 +22,7 @@ export const AnswerSchema = z.object({
   confidence: z.enum(["low", "medium", "high"]),
   needs_mentor: z.boolean(),
 });
-export type Answer = z.infer<typeof AnswerSchema> & { engine: "claude" | "rules" };
+export type Answer = z.infer<typeof AnswerSchema> & { engine: Provider | "rules" };
 
 type Rule = { re: RegExp; answer: Omit<Answer, "engine"> };
 
@@ -85,35 +84,22 @@ export async function askHelp(input: { name: string; email?: string; step?: stri
   const lang = isLang(input.lang) ? input.lang : isLang(user?.lang) ? user!.lang : "en";
 
   let answer: Answer | null = null;
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      const client = new Anthropic();
-      const res = await client.messages.parse({
-        model: "claude-opus-5-5",
-        max_tokens: 6000,
-        output_config: { effort: "low", format: zodOutputFormat(AnswerSchema) },
-        system:
+  const res = await llmJson(AnswerSchema, {
+    effort: "low",
+    maxTokens: 6000,
+    system:
           `You are a patient TA in the live workshop "${WORKSHOP_TITLE}" for Indian final-year engineering students, many coding beginners. ` +
           `Workshop plan:\n${WORKSHOP_STEPS.join("\n")}\nTools: Google Colab, Gemini/ChatGPT/Claude free tiers, Streamlit, Lovable, Hugging Face Spaces. ` +
           "Diagnose the student's problem in one or two plain sentences. fix_steps: 2-4 short, concrete steps they can do in under 3 minutes. " +
           "code_fix: the smallest code snippet that fixes it, or an empty string if no code is needed. Never ask them to paste API keys. " +
           "Set needs_mentor=true if the problem is unclear, needs their screen, or you are guessing. " +
           `Write diagnosis and fix_steps in ${isLang(lang) ? LANGS[lang].label : "English"}; keep code and error names in English.`,
-        messages: [
-          {
-            role: "user",
-            content:
+    user:
               (idea ? `Student's project: ${idea.title} — ${idea.pitch} (tools: ${idea.tools?.join(", ")})\n` : "") +
               (input.step ? `They are on: ${input.step}\n` : "") +
               `Problem / error:\n${input.problem.slice(0, 6000)}`,
-          },
-        ],
-      });
-      if (res.stop_reason !== "refusal" && res.parsed_output) answer = { ...res.parsed_output, engine: "claude" };
-    } catch (e) {
-      console.error("helpdesk: Claude failed, using rules", e);
-    }
-  }
+  });
+  if (res) answer = { ...res.data, engine: res.provider };
   if (!answer) {
     const hit = RULES.find((r) => r.re.test(input.problem));
     answer = { ...(hit?.answer ?? FALLBACK), engine: "rules" };

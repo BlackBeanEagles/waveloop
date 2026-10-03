@@ -1,19 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
+import { llmJson, llmText, activeProvider, type Provider } from "./llm";
 import { WORKSHOP_TITLE } from "./config";
 import { LANGS, isLang } from "./i18n";
 
 const langName = (l?: string) => (isLang(l) ? LANGS[l].label : "English");
-
-const MODEL = "claude-opus-5-5";
-
-let client: Anthropic | null = null;
-function claude() {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
-  client ??= new Anthropic();
-  return client;
-}
 
 // ---------- 1. Project idea generator (the registration hook) ----------
 
@@ -25,37 +15,24 @@ export const IdeaSchema = z.object({
   tools: z.array(z.string()),
   resume_line: z.string(),
 });
-export type Idea = z.infer<typeof IdeaSchema> & { source: "claude" | "template" };
+export type Idea = z.infer<typeof IdeaSchema> & { source: Provider | "template" };
 
 export async function generateIdea(input: { branch: string; interest: string; skill: string; lang?: string }): Promise<Idea> {
-  const c = claude();
-  if (c) {
-    try {
-      const res = await c.messages.parse({
-        model: MODEL,
-        max_tokens: 4000,
-        output_config: { effort: "low", format: zodOutputFormat(IdeaSchema) },
-        system:
+  const res = await llmJson(IdeaSchema, {
+    effort: "low",
+    maxTokens: 4000,
+    system:
           `You design starter AI projects for Indian final-year engineering students attending a free 60-minute live workshop called "${WORKSHOP_TITLE}". ` +
           "The project must be buildable in 60 minutes in a browser by a beginner using free tools (Google Colab, Gemini/ChatGPT/Claude free tiers, Streamlit, Hugging Face Spaces, Lovable, n8n). " +
           "Tie it to the student's branch so it reads well on a placement resume. Keep it concrete and specific, never generic like 'a chatbot'. " +
           "steps: exactly 4 short steps, each doable in about 15 minutes. tools: 2-4 free tools. resume_line: one line starting with a past-tense verb. " +
           `Write title, pitch, why_it_fits_you and steps in ${langName(input.lang)} (simple, conversational, the way students actually speak; English tech words like 'app' or 'API' are fine). ` +
           "Always write tools and resume_line in English, since the resume is in English.",
-        messages: [
-          {
-            role: "user",
-            content: `Branch: ${input.branch}\nInterested in: ${input.interest}\nCoding comfort: ${input.skill}`,
-          },
-        ],
-      });
-      if (res.stop_reason !== "refusal" && res.parsed_output) {
-        return { ...res.parsed_output, source: "claude" };
-      }
-    } catch (err) {
-      console.error("generateIdea: falling back to template", err);
-    }
-  }
+    user: `Branch: ${input.branch}
+Interested in: ${input.interest}
+Coding comfort: ${input.skill}`,
+  });
+  if (res) return { ...res.data, source: res.provider };
   return templateIdea(input);
 }
 
@@ -121,7 +98,7 @@ export const GradeSchema = z.object({
   improvements: z.array(z.string()),
   next_step: z.string(),
 });
-export type Grade = z.infer<typeof GradeSchema> & { total: number; graded_by: "claude" | "heuristic" };
+export type Grade = z.infer<typeof GradeSchema> & { total: number; graded_by: Provider | "heuristic" };
 
 export { RUBRIC } from "./rubric";
 
@@ -144,35 +121,22 @@ export async function fetchReadme(repoUrl: string): Promise<string | null> {
 
 export async function gradeProject(p: { title: string; description: string; repoUrl?: string }): Promise<Grade> {
   const readme = p.repoUrl ? await fetchReadme(p.repoUrl) : null;
-  const c = claude();
-  if (c) {
-    try {
-      const res = await c.messages.parse({
-        model: MODEL,
-        max_tokens: 6000,
-        output_config: { effort: "medium", format: zodOutputFormat(GradeSchema) },
-        system:
+  const res = await llmJson(GradeSchema, {
+    effort: "medium",
+    maxTokens: 6000,
+    system:
           "You grade beginner AI projects built in a 60-minute workshop by final-year engineering students. " +
           "Be encouraging but honest: a project with no evidence of a working demo cannot score above 10 on working_demo. " +
           "Score against the rubric maxima in the schema (problem_clarity 20, ai_usage 25, working_demo 25, originality 15, presentation 15). " +
           "strengths and improvements: 2-3 items each, specific to this project. next_step: one concrete thing to build next.",
-        messages: [
-          {
-            role: "user",
-            content:
+    user:
               `Project title: ${p.title}\n\nStudent's description:\n${p.description}\n\n` +
               (readme ? `README from ${p.repoUrl}:\n${readme}` : p.repoUrl ? `Repo link given (${p.repoUrl}) but README could not be fetched.` : "No repo link given."),
-          },
-        ],
-      });
-      if (res.stop_reason !== "refusal" && res.parsed_output) {
-        const s = res.parsed_output.scores;
-        const total = s.problem_clarity + s.ai_usage + s.working_demo + s.originality + s.presentation;
-        return { ...res.parsed_output, total, graded_by: "claude" };
-      }
-    } catch (err) {
-      console.error("gradeProject: falling back to heuristic", err);
-    }
+  });
+  if (res) {
+    const sc = res.data.scores;
+    const total = sc.problem_clarity + sc.ai_usage + sc.working_demo + sc.originality + sc.presentation;
+    return { ...res.data, total, graded_by: res.provider };
   }
   return heuristicGrade(p, readme);
 }
@@ -218,28 +182,17 @@ const FAQ: [RegExp, string][] = [
 
 export async function answerFaq(question: string, lang: string = "en"): Promise<string> {
   // Keyword FAQ answers are English-only; non-English questions go to Claude when available.
-  if (lang === "en" || !process.env.ANTHROPIC_API_KEY) for (const [re, ans] of FAQ) if (re.test(question)) return ans;
-  const c = claude();
-  if (c) {
-    try {
-      const res = await c.messages.create({
-        model: MODEL,
-        max_tokens: 1000,
-        output_config: { effort: "low" },
-        system:
+  if (lang === "en" || !activeProvider()) for (const [re, ans] of FAQ) if (re.test(question)) return ans;
+  const res = await llmText({
+    effort: "low",
+    maxTokens: 1000,
+    system:
           `You are the WhatsApp assistant for NxtWave's free 60-minute live workshop "${WORKSHOP_TITLE}" for final-year engineering students. ` +
           "Facts: free; 7 PM IST; laptop + Chrome only; certificate after submitting a project; referral rewards. " +
           "Answer in at most 2 short sentences, WhatsApp style. If you don't know, say a team member will reply. Never invent dates or prices. " +
           `Reply in ${langName(lang)}.`,
-        messages: [{ role: "user", content: question }],
-      });
-      if (res.stop_reason !== "refusal") {
-        const text = res.content.find((b) => b.type === "text");
-        if (text && text.type === "text") return text.text;
-      }
-    } catch (err) {
-      console.error("answerFaq failed", err);
-    }
-  }
+    user: question,
+  });
+  if (res) return res.text;
   return "Good question! A team member will reply shortly. Meanwhile, reply MENU to see options.";
 }
