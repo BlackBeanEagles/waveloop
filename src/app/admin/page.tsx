@@ -11,7 +11,6 @@ const S2 = "#eb6834";
 const GRID = "#e5e7eb";
 
 type D = {
-  simulated: boolean;
   integrations: Record<string, boolean>;
   clock: { dayNumber: number; workshop: string };
   kpis: { counted: number; registered: number; verified: number; flagged: number; viaReferral: number; kFactor: number; projected: number; neededPerDay: number; costPerReg: number; target: number };
@@ -40,7 +39,7 @@ export default function Admin() {
 
   useEffect(() => {
     load();
-    const t = setInterval(load, 10000);
+    const t = setInterval(load, 5000);
     return () => clearInterval(t);
   }, [load]);
 
@@ -65,7 +64,6 @@ export default function Admin() {
             Day {d.clock.dayNumber} of 7 · target {k.target} verified registrations · ₹2,000 spent on referral prizes, ₹0 on ads
           </p>
           <div className="mt-2 flex flex-wrap gap-2 text-xs">
-            {d.simulated && <span className="pill bg-amber-100 text-amber-900">⚠ Simulated campaign data (labelled; resettable)</span>}
             {Object.entries(d.integrations).map(([key, on]) => (
               <span key={key} className={`pill ${on ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-600"}`}>
                 {on ? "●" : "○"} {key}: {on ? "live" : "mock"}
@@ -74,18 +72,15 @@ export default function Admin() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className="btn-ghost" disabled={!!busy} onClick={() => action("next", () => post("/api/admin/simulate", { action: "next_day" }))}>
-            {busy === "next" ? "Simulating…" : "▶ Simulate next day"}
-          </button>
           <button className="btn-ghost" disabled={!!busy} onClick={() => action("drip", () => post("/api/admin/drip", {}))}>
             {busy === "drip" ? "Sending…" : "✉ Run drip now"}
           </button>
           <button
             className="btn-ghost text-red-700"
             disabled={!!busy}
-            onClick={() => confirm("Wipe everything and reload the Day-5 demo dataset?") && action("reset", () => post("/api/admin/simulate", { action: "reset" }))}
+            onClick={() => confirm("Delete ALL registrations, events and messages and restart the 7-day clock from now? This cannot be undone.") && action("reset", () => post("/api/admin/reset", { action: "clear" }))}
           >
-            {busy === "reset" ? "Resetting…" : "↺ Reset demo"}
+            {busy === "reset" ? "Clearing…" : "🗑 Clear all data"}
           </button>
         </div>
       </div>

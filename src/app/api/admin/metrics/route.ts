@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { dashboard } from "@/lib/metrics";
-import { getSetting } from "@/lib/growth";
 import { integrations } from "@/lib/config";
 import { adminAllowed, json } from "@/lib/http";
 
@@ -11,7 +10,6 @@ export async function GET(req: NextRequest) {
   const data = await dashboard();
   return json({
     ...data,
-    simulated: (await getSetting("simulated")) === "1",
     integrations: { claude: integrations.claude(), email: integrations.email(), twilio: integrations.twilio(), hostedDb: integrations.hostedDb() },
   });
 }

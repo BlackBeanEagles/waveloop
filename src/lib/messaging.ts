@@ -2,10 +2,10 @@ import { all, now, run, one } from "./db";
 import { integrations } from "./config";
 import { referralCount } from "./growth";
 
-export type SendResult = { provider: "twilio" | "resend" | "simulated"; ok: boolean; error?: string };
+export type SendResult = { provider: "twilio" | "resend" | "no-provider"; ok: boolean; error?: string };
 
 export async function sendWhatsApp(to: string, body: string): Promise<SendResult> {
-  if (!integrations.twilio()) return { provider: "simulated", ok: true };
+  if (!integrations.twilio()) return { provider: "no-provider", ok: true };
   const sid = process.env.TWILIO_ACCOUNT_SID!;
   const auth = Buffer.from(`${sid}:${process.env.TWILIO_AUTH_TOKEN}`).toString("base64");
   const params = new URLSearchParams({
@@ -27,7 +27,7 @@ export async function sendWhatsApp(to: string, body: string): Promise<SendResult
 }
 
 export async function sendEmail(to: string, subject: string, text: string): Promise<SendResult> {
-  if (!integrations.email()) return { provider: "simulated", ok: true };
+  if (!integrations.email()) return { provider: "no-provider", ok: true };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
