@@ -34,7 +34,7 @@ export default async function AmbassadorPortal({ params }: { params: Promise<{ c
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="mb-6">
         <div className="pill bg-sun/40">Ambassador · {a.college}</div>
-        <h1 className="mt-2 text-3xl font-extrabold">Hi {String(a.name).split(" ")[0]}, here&apos;s your campaign</h1>
+        <h1 className="mt-2 text-3xl font-bold">Hi {String(a.name).split(" ")[0]}, here&apos;s your campaign</h1>
       </div>
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
@@ -44,8 +44,8 @@ export default async function AmbassadorPortal({ params }: { params: Promise<{ c
           [`#${rank.length + 1}`, "ambassador rank"],
         ].map(([n, l]) => (
           <div key={String(l)} className="card text-center">
-            <div className="text-3xl font-extrabold text-brand">{n}</div>
-            <div className="text-xs text-slate-500">{l}</div>
+            <div className="text-3xl font-bold text-brand">{n}</div>
+            <div className="text-xs text-ink-soft">{l}</div>
           </div>
         ))}
       </div>
@@ -54,18 +54,18 @@ export default async function AmbassadorPortal({ params }: { params: Promise<{ c
         <div className="card">
           <h2 className="mb-3 font-bold">Clicks by group</h2>
           {groups.length === 0 ? (
-            <p className="text-sm text-slate-500">No clicks yet. Post your first group link!</p>
+            <p className="text-sm text-ink-soft">No clicks yet. Post your first group link!</p>
           ) : (
             <ul className="space-y-2 text-sm">
               {groups.map((g) => (
-                <li key={String(g.grp)} className="flex justify-between rounded-lg bg-slate-50 px-3 py-2">
+                <li key={String(g.grp)} className="flex justify-between rounded-lg bg-cream px-3 py-2">
                   <span className="font-mono">{String(g.grp)}</span>
                   <span className="font-semibold">{Number(g.clicks)}</span>
                 </li>
               ))}
             </ul>
           )}
-          <p className="mt-4 text-xs text-slate-500">Tip: post in the evening (7 to 9 PM). Then reply to questions in the group yourself. That doubles conversion.</p>
+          <p className="mt-4 text-xs text-ink-soft">Tip: post in the evening (7 to 9 PM). Then reply to questions in the group yourself. That doubles conversion.</p>
         </div>
       </div>
     </div>

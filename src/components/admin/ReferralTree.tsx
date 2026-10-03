@@ -44,13 +44,13 @@ export default function ReferralTree({ refreshKey }: { refreshKey: number }) {
     return { root, nodes, links: root.links(), minX, width, height };
   }, [d, sel]);
 
-  if (!d) return <div className="card text-sm text-slate-500">Loading referral graph…</div>;
+  if (!d) return <div className="card text-sm text-ink-soft">Loading referral graph…</div>;
   const s = d.stats;
 
   return (
     <div className="card">
       <h2 className="mb-1 font-bold">Referral cascades</h2>
-      <p className="mb-4 text-xs text-slate-500">Who brought whom. Each tree starts at a student who registered on their own and shows every generation their link set off.</p>
+      <p className="mb-4 text-xs text-ink-soft">Who brought whom. Each tree starts at a student who registered on their own and shows every generation their link set off.</p>
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
         {[
           [s.referred, "joined via a friend"],
@@ -59,27 +59,27 @@ export default function ReferralTree({ refreshKey }: { refreshKey: number }) {
           [s.maxDepth, "deepest chain (gens)"],
           [`${Math.round(s.sameCollegeShare * 100)}%`, "same-college refs"],
         ].map(([n, l]) => (
-          <div key={String(l)} className="rounded-xl bg-slate-50 p-3 text-center">
-            <div className="text-2xl font-extrabold tabular-nums">{n}</div>
-            <div className="text-xs text-slate-500">{l}</div>
+          <div key={String(l)} className="rounded-xl bg-cream p-3 text-center">
+            <div className="text-2xl font-bold tabular-nums">{n}</div>
+            <div className="text-xs text-ink-soft">{l}</div>
           </div>
         ))}
       </div>
 
       {d.cascades.length === 0 ? (
-        <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+        <p className="rounded-xl bg-cream p-4 text-sm text-ink-soft">
           No referral chains yet. They appear as soon as someone registers through another student&apos;s <code className="font-mono">/r/CODE</code> link or a <code className="font-mono">JOIN CODE</code> WhatsApp message.
         </p>
       ) : (
         <>
           <div className="mb-3 flex flex-wrap gap-2">
             {d.cascades.map((c, i) => (
-              <button key={c.tree.id} onClick={() => setSel(i)} className={`btn px-2.5 py-1 text-xs ${i === sel ? "bg-brand text-white" : "border border-slate-300 bg-white"}`}>
+              <button key={c.tree.id} onClick={() => setSel(i)} className={`btn px-2.5 py-1 text-xs ${i === sel ? "bg-brand text-white" : "border border-line bg-paper"}`}>
                 {c.tree.name} · {c.size} people · {c.depth} gen
               </button>
             ))}
           </div>
-          <div className="mb-2 flex flex-wrap gap-4 text-xs text-slate-600">
+          <div className="mb-2 flex flex-wrap gap-4 text-xs text-ink-soft">
             {Object.values(STATUS).map((st) => (
               <span key={st.label} className="flex items-center gap-1">
                 <span style={{ color: st.fill }}>{st.icon}</span>
@@ -88,7 +88,7 @@ export default function ReferralTree({ refreshKey }: { refreshKey: number }) {
             ))}
           </div>
           {layout && (
-            <div className="relative overflow-x-auto rounded-xl border border-slate-100 bg-[#fcfcfb]">
+            <div className="relative overflow-x-auto rounded-xl border border-line bg-[#fcfcfb]">
               <svg width={layout.width} height={layout.height} role="img" aria-label="Referral tree">
                 <g transform={`translate(20, ${-layout.minX + ROW})`}>
                   {layout.links.map((l, i) => (
@@ -116,20 +116,20 @@ export default function ReferralTree({ refreshKey }: { refreshKey: number }) {
                 </g>
               </svg>
               {hover && (
-                <div className="pointer-events-none absolute right-2 top-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow">
+                <div className="pointer-events-none absolute right-2 top-2 rounded-lg border border-line bg-paper px-3 py-2 text-xs shadow">
                   <div className="font-semibold">{hover.name}</div>
-                  <div className="text-slate-500">{hover.college}</div>
+                  <div className="text-ink-soft">{hover.college}</div>
                   <div>
                     {STATUS[hover.status].icon} {STATUS[hover.status].label}
                   </div>
-                  <div className="text-slate-500">{new Date(hover.createdAt).toLocaleString("en-IN")}</div>
+                  <div className="text-ink-soft">{new Date(hover.createdAt).toLocaleString("en-IN")}</div>
                   <div>{hover.children.length} direct referrals</div>
                 </div>
               )}
             </div>
           )}
           {s.generations.length > 1 && (
-            <p className="mt-3 text-xs text-slate-500">
+            <p className="mt-3 text-xs text-ink-soft">
               People per generation: {s.generations.map((g) => `gen ${g.generation}: ${g.people}`).join(" → ")}. A loop is self-sustaining when each generation is at least as big as the last.
             </p>
           )}

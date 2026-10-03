@@ -1,48 +1,78 @@
 @import "tailwindcss";
 
+/* Same palette as the pitch deck: navy ink, warm cream, orange accent, blue second accent. */
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
   --font-mono: var(--font-geist-mono);
-  --color-ink: #0b1020;
-  --color-brand: #3b5bdb;
-  --color-brand-dark: #1b2a6b;
-  --color-sun: #ffd43b;
+  --color-ink: #13233d;
+  --color-ink-soft: #3e4a5c;
+  --color-brand: #b4501f;
+  --color-brand-dark: #8e3c14;
+  --color-sun: #f08a4b;
+  --color-sky: #3b6fd8;
+  --color-cream: #f6f4ef;
+  --color-sand: #e9e5dc;
+  --color-paper: #fffdf9;
+  --color-line: #e2ddd2;
 }
 
 body {
-  background: #f6f7fb;
-  color: #0b1020;
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: #f6f4ef;
+  color: #13233d;
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: #f08a4b55;
 }
 
 @utility card {
-    @apply rounded-2xl border border-slate-200 bg-white p-5 shadow-sm;
+  @apply rounded-2xl border border-line bg-paper p-5 shadow-[0_10px_28px_rgba(19,35,61,0.06)];
 }
 
 @utility btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-primary {
-    @apply btn bg-brand text-white hover:bg-brand-dark;
+  @apply btn bg-brand text-white shadow-[0_6px_16px_rgba(180,80,31,0.25)] hover:bg-brand-dark;
 }
 
 @utility btn-ghost {
-    @apply btn border border-slate-300 bg-white text-ink hover:bg-slate-50;
+  @apply btn border border-line bg-paper text-ink hover:bg-sand;
 }
 
 @utility btn-wa {
-    @apply btn bg-[#25d366] text-white hover:bg-[#1ebe5a];
+  @apply btn bg-[#157a42] text-white hover:bg-[#106336];
 }
 
 @utility input {
-    @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20;
+  @apply w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none placeholder:text-[#8a8f99] focus:border-brand focus:ring-2 focus:ring-brand/20;
 }
 
 @utility label {
-    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500;
+  @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft;
 }
 
 @utility pill {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}
+
+@utility eyebrow {
+  @apply text-xs font-semibold uppercase tracking-[0.2em] text-brand;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

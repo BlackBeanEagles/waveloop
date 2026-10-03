@@ -34,8 +34,8 @@ export default function Submit() {
     <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 lg:grid-cols-2">
       <form onSubmit={submit} className="card flex flex-col gap-3 self-start">
         <div className="pill w-fit bg-brand/10 text-brand">After the workshop</div>
-        <h1 className="text-2xl font-extrabold">Submit your project for an AI review</h1>
-        <p className="text-sm text-slate-500">You get a rubric score, specific feedback and a shareable certificate. Your certificate post on LinkedIn is the next campaign&apos;s best ad.</p>
+        <h1 className="text-2xl font-bold">Submit your project for an AI review</h1>
+        <p className="text-sm text-ink-soft">You get a rubric score, specific feedback and a shareable certificate. Your certificate post on LinkedIn is the next campaign&apos;s best ad.</p>
         {err && <div className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>}
         <div className="grid gap-3 sm:grid-cols-2">
           <input className="input" required placeholder="Your name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
@@ -51,11 +51,11 @@ export default function Submit() {
 
       <div>
         {!res ? (
-          <div className="card text-sm text-slate-600">
+          <div className="card text-sm text-ink-soft">
             <h2 className="mb-3 font-bold text-ink">Rubric</h2>
             <ul className="space-y-2">
               {RUBRIC.map((r) => (
-                <li key={r.key} className="flex justify-between rounded-lg bg-slate-50 px-3 py-2">
+                <li key={r.key} className="flex justify-between rounded-lg bg-cream px-3 py-2">
                   <span>{r.label}</span>
                   <span className="font-mono">/{r.max}</span>
                 </li>
@@ -68,11 +68,11 @@ export default function Submit() {
             <div className="card">
               <div className="flex items-baseline justify-between">
                 <h2 className="font-bold">Your score</h2>
-                <span className="pill bg-slate-100 text-slate-600">graded by {res.grade.graded_by}</span>
+                <span className="pill bg-sand text-ink-soft">graded by {res.grade.graded_by}</span>
               </div>
-              <div className="my-3 text-5xl font-extrabold text-brand">
+              <div className="my-3 text-5xl font-bold text-brand">
                 {res.grade.total}
-                <span className="text-xl text-slate-400">/100</span>
+                <span className="text-xl text-ink-soft/70">/100</span>
               </div>
               <ul className="space-y-2">
                 {RUBRIC.map((r) => {
@@ -85,7 +85,7 @@ export default function Submit() {
                           {v}/{r.max}
                         </span>
                       </div>
-                      <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100">
+                      <div className="mt-1 h-2 overflow-hidden rounded-full bg-sand">
                         <div className="h-full bg-brand" style={{ width: `${(v / r.max) * 100}%` }} />
                       </div>
                     </li>

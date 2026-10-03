@@ -18,7 +18,7 @@ export default function ShareKit(p: Props) {
         <div className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">Verify your number first, or your link won&apos;t count referrals.</div>
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`/api/og/${p.code}`} alt="Your share card" className="w-full rounded-xl border border-slate-200" />
+      <img src={`/api/og/${p.code}`} alt="Your share card" className="w-full rounded-xl border border-line" />
       <div className="flex gap-2">
         <input readOnly value={p.link} className="input font-mono text-xs" />
         <button
@@ -47,14 +47,14 @@ export default function ShareKit(p: Props) {
       <a className="btn-ghost" href="/api/ics" onClick={() => post("/api/track", { type: "calendar_added", userId: p.userId })}>
         📅 Add workshop to my calendar
       </a>
-      <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-3">
+      <div className="flex items-center gap-4 rounded-xl bg-cream p-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={p.qr} alt="QR code for your link" className="h-24 w-24 rounded-lg" />
-        <p className="text-xs text-slate-600">Show this QR in class or put it on your college notice board. Every scan is tracked to you.</p>
+        <p className="text-xs text-ink-soft">Show this QR in class or put it on your college notice board. Every scan is tracked to you.</p>
       </div>
-      <details className="text-xs text-slate-500">
+      <details className="text-xs text-ink-soft">
         <summary className="cursor-pointer">Message we pre-fill on WhatsApp</summary>
-        <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-slate-50 p-2 font-sans">{p.waText}</pre>
+        <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-cream p-2 font-sans">{p.waText}</pre>
       </details>
     </div>
   );

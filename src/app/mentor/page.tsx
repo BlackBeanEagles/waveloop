@@ -26,12 +26,12 @@ export default function Mentor() {
     return () => clearInterval(t);
   }, [load]);
 
-  if (forbidden) return <p className="p-10 text-center text-slate-500">Log in on the Growth dashboard first (mentors use the admin key).</p>;
+  if (forbidden) return <p className="p-10 text-center text-ink-soft">Log in on the Growth dashboard first (mentors use the admin key).</p>;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-extrabold">Mentor queue</h1>
-      <p className="mb-6 text-slate-500">Only tickets the AI couldn&apos;t fix land here. Oldest first. Your reply appears on the student&apos;s screen.</p>
+      <h1 className="text-3xl font-bold">Mentor queue</h1>
+      <p className="mb-6 text-ink-soft">Only tickets the AI couldn&apos;t fix land here. Oldest first. Your reply appears on the student&apos;s screen.</p>
       {stats && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
@@ -41,14 +41,14 @@ export default function Mentor() {
             [`${Math.round(stats.deflection * 100)}%`, "solved without a mentor"],
           ].map(([n, l]) => (
             <div key={String(l)} className="card text-center">
-              <div className="text-3xl font-extrabold text-brand">{n}</div>
-              <div className="text-xs text-slate-500">{l}</div>
+              <div className="text-3xl font-bold text-brand">{n}</div>
+              <div className="text-xs text-ink-soft">{l}</div>
             </div>
           ))}
         </div>
       )}
       {queue.length === 0 ? (
-        <div className="card text-sm text-slate-500">Queue is empty. 🎉</div>
+        <div className="card text-sm text-ink-soft">Queue is empty. 🎉</div>
       ) : (
         <ul className="space-y-3">
           {queue.map((q) => (
@@ -57,12 +57,12 @@ export default function Mentor() {
                 <span className="font-bold">
                   #{q.id} · {q.name}
                 </span>
-                <span className="text-slate-500">
+                <span className="text-ink-soft">
                   {q.step ?? ""} · {new Date(q.created_at).toLocaleTimeString()}
                 </span>
               </div>
-              <pre className="max-h-40 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-2 font-mono text-xs">{q.problem}</pre>
-              <p className="mt-2 text-xs text-slate-500">
+              <pre className="max-h-40 overflow-auto whitespace-pre-wrap rounded-lg bg-cream p-2 font-mono text-xs">{q.problem}</pre>
+              <p className="mt-2 text-xs text-ink-soft">
                 <b>AI tried:</b> {q.answer.diagnosis}
               </p>
               <form

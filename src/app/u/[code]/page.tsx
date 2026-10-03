@@ -44,8 +44,8 @@ export default async function Me({ params, searchParams }: { params: Promise<{ c
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="flex flex-col gap-6">
           <div className="card">
-            <h1 className="text-2xl font-extrabold">Bring your friends, unlock rewards</h1>
-            <p className="mt-1 text-sm text-slate-500">A referral counts once your friend verifies their number. {refs > 0 ? `Rank #${above.length + 1} right now.` : "Get your first referral to enter the leaderboard."}</p>
+            <h1 className="text-2xl font-bold">Bring your friends, unlock rewards</h1>
+            <p className="mt-1 text-sm text-ink-soft">A referral counts once your friend verifies their number. {refs > 0 ? `Rank #${above.length + 1} right now.` : "Get your first referral to enter the leaderboard."}</p>
             <div className="mt-5 grid grid-cols-3 gap-3 text-center">
               <Stat n={refs} l="verified referrals" />
               <Stat n={Number(pending?.n ?? 0)} l="pending" />
@@ -55,13 +55,13 @@ export default async function Me({ params, searchParams }: { params: Promise<{ c
               {REWARDS.map((r) => {
                 const done = refs >= r.refs;
                 return (
-                  <li key={r.refs} className={`flex items-center gap-3 rounded-xl border p-3 text-sm ${done ? "border-green-200 bg-green-50" : "border-slate-200"}`}>
-                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${done ? "bg-green-600 text-white" : "bg-slate-100 text-slate-500"}`}>
+                  <li key={r.refs} className={`flex items-center gap-3 rounded-xl border p-3 text-sm ${done ? "border-green-200 bg-green-50" : "border-line"}`}>
+                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${done ? "bg-green-600 text-white" : "bg-sand text-ink-soft"}`}>
                       {done ? "✓" : r.refs}
                     </span>
                     <span className={done ? "font-semibold" : ""}>{r.label}</span>
                     {!done && reward.next?.refs === r.refs && (
-                      <div className="ml-auto h-2 w-24 overflow-hidden rounded-full bg-slate-100">
+                      <div className="ml-auto h-2 w-24 overflow-hidden rounded-full bg-sand">
                         <div className="h-full bg-brand" style={{ width: `${Math.round((refs / r.refs) * 100)}%` }} />
                       </div>
                     )}
@@ -87,9 +87,9 @@ export default async function Me({ params, searchParams }: { params: Promise<{ c
 
 function Stat({ n, l }: { n: number; l: string }) {
   return (
-    <div className="rounded-xl bg-slate-50 p-3">
-      <div className="text-3xl font-extrabold text-brand tabular-nums">{n}</div>
-      <div className="text-xs text-slate-500">{l}</div>
+    <div className="rounded-xl bg-cream p-3">
+      <div className="text-3xl font-bold text-brand tabular-nums">{n}</div>
+      <div className="text-xs text-ink-soft">{l}</div>
     </div>
   );
 }

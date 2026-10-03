@@ -71,8 +71,8 @@ export default function Help() {
         <div className="pill w-fit bg-red-100 text-red-700">
           <span className="h-2 w-2 animate-pulse rounded-full bg-red-600" /> Live workshop help desk
         </div>
-        <h1 className="text-2xl font-extrabold">Stuck? Paste your error.</h1>
-        <p className="text-sm text-slate-500">You get a fix in seconds, matched to your own project. If it doesn&apos;t work, a mentor picks it up.</p>
+        <h1 className="text-2xl font-bold">Stuck? Paste your error.</h1>
+        <p className="text-sm text-ink-soft">You get a fix in seconds, matched to your own project. If it doesn&apos;t work, a mentor picks it up.</p>
         {err && <div className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>}
         <div className="grid gap-3 sm:grid-cols-2">
           <input className="input" required placeholder="Your name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
@@ -97,7 +97,7 @@ export default function Help() {
 
       <div>
         {!a ? (
-          <div className="card text-sm text-slate-600">
+          <div className="card text-sm text-ink-soft">
             <h2 className="mb-2 font-bold text-ink">How it works</h2>
             <ol className="list-decimal space-y-1 pl-5">
               <li>AI reads your error, your workshop step and your registered project idea.</li>
@@ -109,7 +109,7 @@ export default function Help() {
           <div className="card flex flex-col gap-4">
             <div className="flex items-start justify-between gap-2">
               <h2 className="text-lg font-bold">{a.diagnosis}</h2>
-              <span className={`pill shrink-0 ${a.confidence === "high" ? "bg-green-100 text-green-800" : a.confidence === "medium" ? "bg-amber-100 text-amber-900" : "bg-slate-100 text-slate-600"}`}>
+              <span className={`pill shrink-0 ${a.confidence === "high" ? "bg-green-100 text-green-800" : a.confidence === "medium" ? "bg-amber-100 text-amber-900" : "bg-sand text-ink-soft"}`}>
                 {a.confidence} confidence
               </span>
             </div>
@@ -133,7 +133,7 @@ export default function Help() {
                 </button>
               </div>
             )}
-            <p className="text-xs text-slate-400">Answered by {a.engine === "claude" ? "Claude" : "the common-errors guide (no API key)"} · ticket #{res!.ticketId}</p>
+            <p className="text-xs text-ink-soft/70">Answered by {a.engine === "claude" ? "Claude" : "the common-errors guide (no API key)"} · ticket #{res!.ticketId}</p>
             {status === "open" && (
               <div className="grid grid-cols-2 gap-2">
                 <button className="btn-primary" onClick={() => feedback("solved")}>

@@ -35,7 +35,7 @@ export default function Webhooks({ refreshKey }: { refreshKey: number }) {
   return (
     <div className="card mb-6">
       <h2 className="mb-1 font-bold">Integrations: webhooks for n8n / Zapier / CRM</h2>
-      <p className="mb-4 text-xs text-slate-500">
+      <p className="mb-4 text-xs text-ink-soft">
         Every event is POSTed as JSON, signed with HMAC-SHA256 (<code className="font-mono">X-WaveLoop-Signature: sha256=…</code> over <code className="font-mono">timestamp.body</code>), and retried with backoff up to 6 times.
       </p>
       {msg && <div className="mb-3 rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-900">{msg}</div>}
@@ -60,7 +60,7 @@ export default function Webhooks({ refreshKey }: { refreshKey: number }) {
         <input className="input font-mono text-xs" required placeholder="https://your-n8n.app.n8n.cloud/webhook/…" value={url} onChange={(e) => setUrl(e.target.value)} />
         <div className="flex flex-wrap gap-2 text-xs">
           {events.map((ev) => (
-            <label key={ev} className="flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1">
+            <label key={ev} className="flex items-center gap-1 rounded-full bg-sand px-2 py-1">
               <input type="checkbox" checked={picked.includes(ev)} onChange={(e) => setPicked(e.target.checked ? [...picked, ev] : picked.filter((x) => x !== ev))} />
               <span className="font-mono">{ev}</span>
             </label>
@@ -72,7 +72,7 @@ export default function Webhooks({ refreshKey }: { refreshKey: number }) {
       {hooks.length > 0 && (
         <ul className="mb-4 space-y-2">
           {hooks.map((h) => (
-            <li key={h.id} className={`rounded-xl border border-slate-200 p-3 text-xs ${h.active ? "" : "opacity-60"}`}>
+            <li key={h.id} className={`rounded-xl border border-line p-3 text-xs ${h.active ? "" : "opacity-60"}`}>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="break-all font-mono">{h.url}</span>
                 <div className="flex gap-2">
@@ -87,7 +87,7 @@ export default function Webhooks({ refreshKey }: { refreshKey: number }) {
                   </button>
                 </div>
               </div>
-              <div className="mt-1 text-slate-500">
+              <div className="mt-1 text-ink-soft">
                 {h.events.join(", ")} · secret {h.secretHint} · ✓ {h.stats.delivered ?? 0} delivered · ↻ {h.stats.retrying ?? 0} retrying · ✕ {h.stats.failed ?? 0} failed
               </div>
             </li>
@@ -98,7 +98,7 @@ export default function Webhooks({ refreshKey }: { refreshKey: number }) {
       {deliveries.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead className="text-left uppercase text-slate-500">
+            <thead className="text-left uppercase text-ink-soft">
               <tr>
                 <th className="py-1">Event</th>
                 <th>Status</th>
@@ -109,12 +109,12 @@ export default function Webhooks({ refreshKey }: { refreshKey: number }) {
             </thead>
             <tbody>
               {deliveries.map((d) => (
-                <tr key={d.id} className="border-t border-slate-100">
+                <tr key={d.id} className="border-t border-line">
                   <td className="py-1.5 font-mono">{d.event}</td>
                   <td>{d.status === "delivered" ? "✓ delivered" : d.status === "failed" ? "✕ failed" : `↻ ${d.status}`}</td>
                   <td className="tabular-nums">{d.attempts}</td>
-                  <td className="text-slate-500">{d.response_code ? `HTTP ${d.response_code}` : (d.error ?? "–").slice(0, 60)}</td>
-                  <td className="text-slate-500">{new Date(d.created_at).toLocaleTimeString()}</td>
+                  <td className="text-ink-soft">{d.response_code ? `HTTP ${d.response_code}` : (d.error ?? "–").slice(0, 60)}</td>
+                  <td className="text-ink-soft">{new Date(d.created_at).toLocaleTimeString()}</td>
                 </tr>
               ))}
             </tbody>

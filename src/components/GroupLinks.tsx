@@ -22,11 +22,11 @@ export default function GroupLinks({ base, college }: { base: string; college: s
       <h2 className="font-bold">Make a tracked link for each group</h2>
       <div className="flex flex-wrap gap-1">
         {(Object.keys(LANGS) as Lang[]).map((l) => (
-          <button key={l} type="button" onClick={() => setLang(l)} className={`rounded-full px-3 py-1 text-xs ${l === lang ? "bg-ink text-white" : "bg-slate-100"}`}>
+          <button key={l} type="button" onClick={() => setLang(l)} className={`rounded-full px-3 py-1 text-xs ${l === lang ? "bg-ink text-white" : "bg-sand"}`}>
             {LANGS[l].native}
           </button>
         ))}
-        <span className="self-center text-xs text-slate-500">page language for this group</span>
+        <span className="self-center text-xs text-ink-soft">page language for this group</span>
       </div>
       <input className="input" value={group} onChange={(e) => setGroup(e.target.value)} placeholder="e.g. ece-section-b" />
       <pre className="whitespace-pre-wrap rounded-xl bg-[#d9fdd3] p-3 font-sans text-sm">{post}</pre>

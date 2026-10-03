@@ -23,12 +23,12 @@ export default function AmbassadorSignup() {
     <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 lg:grid-cols-2">
       <div className="flex flex-col gap-4">
         <div className="pill w-fit bg-sun/40">Campus Ambassador program</div>
-        <h1 className="text-3xl font-extrabold">Bring your batch. Lead the leaderboard.</h1>
-        <p className="text-slate-600">
+        <h1 className="text-3xl font-bold">Bring your batch. Lead the leaderboard.</h1>
+        <p className="text-ink-soft">
           Ambassadors seed the campaign: each one posts in 3 to 5 class and club WhatsApp groups. Every group gets its own tracked link, so you can see which group
           converted.
         </p>
-        <ul className="space-y-2 text-sm text-slate-700">
+        <ul className="space-y-2 text-sm text-ink">
           <li>🏆 Top college gets a dedicated NxtWave campus session</li>
           <li>📜 Ambassador certificate + LinkedIn recommendation for the top 5</li>
           <li>📊 Your own live dashboard of clicks and sign-ups per group</li>

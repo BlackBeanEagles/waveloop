@@ -82,7 +82,7 @@ export default function Admin() {
         <button className="btn-primary">Open dashboard</button>
       </form>
     );
-  if (!d) return <div className="p-10 text-center text-slate-500">Loading dashboard…</div>;
+  if (!d) return <div className="p-10 text-center text-ink-soft">Loading dashboard…</div>;
   const k = d.kpis;
   const onTrack = k.projected >= k.target;
 
@@ -90,13 +90,13 @@ export default function Admin() {
     <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold">Growth dashboard</h1>
-          <p className="text-slate-500">
+          <h1 className="text-3xl font-bold">Growth dashboard</h1>
+          <p className="text-ink-soft">
             Day {d.clock.dayNumber} of 7 · target {k.target} verified registrations · ₹2,000 spent on referral prizes, ₹0 on ads
           </p>
           <div className="mt-2 flex flex-wrap gap-2 text-xs">
             {Object.entries(d.integrations).map(([key, on]) => (
-              <span key={key} className={`pill ${on ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-600"}`}>
+              <span key={key} className={`pill ${on ? "bg-green-100 text-green-800" : "bg-sand text-ink-soft"}`}>
                 {on ? "●" : "○"} {key}: {on ? "live" : "mock"}
               </span>
             ))}
@@ -156,18 +156,18 @@ export default function Admin() {
                 <li key={f.stage} className="text-sm" title={`${f.value} (${step}% of previous step)`}>
                   <div className="mb-1 flex justify-between">
                     <span>{f.stage}</span>
-                    <span className="tabular-nums text-slate-600">
-                      {f.value.toLocaleString("en-IN")} {i > 0 && <span className="text-xs text-slate-400">· {step}%</span>}
+                    <span className="tabular-nums text-ink-soft">
+                      {f.value.toLocaleString("en-IN")} {i > 0 && <span className="text-xs text-ink-soft/70">· {step}%</span>}
                     </span>
                   </div>
-                  <div className="h-3 overflow-hidden rounded bg-slate-100">
+                  <div className="h-3 overflow-hidden rounded bg-sand">
                     <div className="h-full rounded" style={{ width: `${(f.value / top) * 100}%`, background: S1 }} />
                   </div>
                 </li>
               );
             })}
           </ol>
-          <p className="mt-3 text-xs text-slate-500">Biggest drop is the step to fix next. Hover a row for the step conversion.</p>
+          <p className="mt-3 text-xs text-ink-soft">Biggest drop is the step to fix next. Hover a row for the step conversion.</p>
         </Panel>
       </div>
 
@@ -190,7 +190,7 @@ export default function Admin() {
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
         <Panel title="Campus ambassadors">
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase text-slate-500">
+            <thead className="text-left text-xs uppercase text-ink-soft">
               <tr>
                 <th className="py-1">Ambassador</th>
                 <th>Groups</th>
@@ -200,12 +200,12 @@ export default function Admin() {
             </thead>
             <tbody>
               {d.ambassadors.map((a) => (
-                <tr key={a.code} className="border-t border-slate-100">
+                <tr key={a.code} className="border-t border-line">
                   <td className="py-2">
                     <a href={`/ambassador/${a.code}`} className="font-semibold hover:underline">
                       {a.name}
                     </a>
-                    <div className="text-xs text-slate-500">{a.college}</div>
+                    <div className="text-xs text-ink-soft">{a.college}</div>
                   </td>
                   <td className="tabular-nums">{a.groups}</td>
                   <td className="tabular-nums">{a.regs}</td>
@@ -218,19 +218,19 @@ export default function Admin() {
 
         <Panel title={`Fraud review queue (${d.fraudQueue.length})`}>
           {d.fraudQueue.length === 0 ? (
-            <p className="text-sm text-slate-500">Nothing flagged.</p>
+            <p className="text-sm text-ink-soft">Nothing flagged.</p>
           ) : (
             <ul className="max-h-[360px] space-y-2 overflow-y-auto pr-1">
               {d.fraudQueue.map((f) => (
-                <li key={f.id} className="rounded-xl border border-slate-200 p-3 text-sm">
+                <li key={f.id} className="rounded-xl border border-line p-3 text-sm">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="font-semibold">{f.name}</div>
-                      <div className="text-xs text-slate-500">{f.email}</div>
+                      <div className="text-xs text-ink-soft">{f.email}</div>
                     </div>
                     <span className="pill bg-red-100 text-red-800">⚠ risk {f.fraud_score}</span>
                   </div>
-                  <ul className="mt-1 list-disc pl-4 text-xs text-slate-600">
+                  <ul className="mt-1 list-disc pl-4 text-xs text-ink-soft">
                     {f.reasons.map((r) => (
                       <li key={r}>{r}</li>
                     ))}
@@ -263,17 +263,17 @@ export default function Admin() {
       <Panel title="WhatsApp drip engine">
         <div className="mb-3 flex flex-wrap gap-2 text-xs">
           {summarizeOutbox(d.outbox).map(([t, s]) => (
-            <span key={t} className="pill bg-slate-100 text-slate-700">
+            <span key={t} className="pill bg-sand text-ink">
               {t}: {s}
             </span>
           ))}
         </div>
         {msgs.length === 0 ? (
-          <p className="text-sm text-slate-500">No messages yet. Register on the student page to queue the 6-step sequence.</p>
+          <p className="text-sm text-ink-soft">No messages yet. Register on the student page to queue the 6-step sequence.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase text-slate-500">
+              <thead className="text-left text-xs uppercase text-ink-soft">
                 <tr>
                   <th className="py-1">To</th>
                   <th>Step</th>
@@ -284,22 +284,22 @@ export default function Admin() {
               </thead>
               <tbody>
                 {msgs.map((m) => (
-                  <tr key={m.id} className="border-t border-slate-100 align-top">
+                  <tr key={m.id} className="border-t border-line align-top">
                     <td className="py-2 pr-2 font-semibold">{m.name}</td>
                     <td className="pr-2 font-mono text-xs">{m.template}</td>
-                    <td className="pr-2 text-xs text-slate-500">{new Date(m.send_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" })}</td>
+                    <td className="pr-2 text-xs text-ink-soft">{new Date(m.send_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" })}</td>
                     <td className="pr-2 text-xs">
                       {m.status}
-                      {m.provider && <div className="text-slate-400">{m.provider}</div>}
+                      {m.provider && <div className="text-ink-soft/70">{m.provider}</div>}
                     </td>
-                    <td className="max-w-md text-xs text-slate-600">{m.body}</td>
+                    <td className="max-w-md text-xs text-ink-soft">{m.body}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-ink-soft">
           Rules are checked at send time: no referral nudge to people who already referred, no project reminder to no-shows. Runs on Vercel Cron in production.
         </p>
       </Panel>
@@ -319,7 +319,7 @@ function HelpDeskCard({ refreshKey }: { refreshKey: number }) {
     <div className="card mb-6 flex flex-wrap items-center gap-6">
       <div>
         <h2 className="font-bold">Live help desk</h2>
-        <p className="text-xs text-slate-500">AI answers first; mentors only get what it can&apos;t fix.</p>
+        <p className="text-xs text-ink-soft">AI answers first; mentors only get what it can&apos;t fix.</p>
       </div>
       {[
         [s.total, "requests"],
@@ -328,8 +328,8 @@ function HelpDeskCard({ refreshKey }: { refreshKey: number }) {
         [`${Math.round(s.deflection * 100)}%`, "solved without mentor"],
       ].map(([n, l]) => (
         <div key={String(l)} className="text-center">
-          <div className="text-2xl font-extrabold tabular-nums">{n}</div>
-          <div className="text-xs text-slate-500">{l}</div>
+          <div className="text-2xl font-bold tabular-nums">{n}</div>
+          <div className="text-xs text-ink-soft">{l}</div>
         </div>
       ))}
       <a href="/mentor" className="btn-ghost ml-auto">
@@ -348,9 +348,9 @@ function summarizeOutbox(rows: D["outbox"]) {
 function Kpi({ big, sub, hint, tone }: { big: string; sub: string; hint: string; tone?: "good" | "bad" }) {
   return (
     <div className="card p-4" title={hint}>
-      <div className={`text-2xl font-extrabold tabular-nums ${tone === "good" ? "text-green-700" : tone === "bad" ? "text-red-700" : "text-ink"}`}>{big}</div>
-      <div className="text-xs text-slate-500">{sub}</div>
-      <div className="mt-1 text-[11px] text-slate-400">
+      <div className={`text-2xl font-bold tabular-nums ${tone === "good" ? "text-green-700" : tone === "bad" ? "text-red-700" : "text-ink"}`}>{big}</div>
+      <div className="text-xs text-ink-soft">{sub}</div>
+      <div className="mt-1 text-[11px] text-ink-soft/70">
         {tone === "good" ? "✓ " : tone === "bad" ? "⚠ " : ""}
         {hint}
       </div>

@@ -43,8 +43,8 @@ export default function LivePage() {
           <div className="pill bg-red-100 text-red-700">
             <span className="h-2 w-2 animate-pulse rounded-full bg-red-600" /> LIVE
           </div>
-          <h1 className="mt-2 text-3xl font-extrabold">Workshop room</h1>
-          <p className="text-slate-500">Polls and Q&amp;A that run alongside the stream, so 500 people stay engaged instead of muted.</p>
+          <h1 className="mt-2 text-3xl font-bold">Workshop room</h1>
+          <p className="text-ink-soft">Polls and Q&amp;A that run alongside the stream, so 500 people stay engaged instead of muted.</p>
         </div>
         <a href="/help" className="btn-primary">
           🆘 Stuck? Get help
@@ -85,29 +85,29 @@ export default function LivePage() {
                         setVoted({ ...voted, [d.poll!.id]: i });
                         act({ action: "vote", pollId: d.poll!.id, voter: visitorId(), option: i });
                       }}
-                      className={`relative w-full overflow-hidden rounded-xl border p-3 text-left text-sm ${mine ? "border-brand" : "border-slate-200"}`}
+                      className={`relative w-full overflow-hidden rounded-xl border p-3 text-left text-sm ${mine ? "border-brand" : "border-line"}`}
                     >
                       <div className="absolute inset-y-0 left-0 bg-brand/10 transition-all" style={{ width: `${pct}%` }} />
                       <div className="relative flex justify-between">
                         <span className={mine ? "font-semibold" : ""}>{o}</span>
-                        <span className="tabular-nums text-slate-500">{pct}%</span>
+                        <span className="tabular-nums text-ink-soft">{pct}%</span>
                       </div>
                     </button>
                   );
                 })}
               </div>
-              <p className="mt-3 text-xs text-slate-500">{total} votes</p>
+              <p className="mt-3 text-xs text-ink-soft">{total} votes</p>
             </>
           ) : (
-            <p className="text-sm text-slate-500">No active poll.</p>
+            <p className="text-sm text-ink-soft">No active poll.</p>
           )}
 
           {host && (
-            <div className="mt-6 border-t border-slate-100 pt-4">
+            <div className="mt-6 border-t border-line pt-4">
               <h3 className="mb-2 text-sm font-bold">Host: switch poll</h3>
               <div className="flex flex-wrap gap-2">
                 {d?.polls.map((p) => (
-                  <button key={p.id} onClick={() => act({ action: "activate", pollId: p.id })} className={`btn text-xs ${p.active ? "bg-brand text-white" : "border border-slate-300"}`}>
+                  <button key={p.id} onClick={() => act({ action: "activate", pollId: p.id })} className={`btn text-xs ${p.active ? "bg-brand text-white" : "border border-line"}`}>
                     {p.question.slice(0, 32)}
                   </button>
                 ))}
@@ -146,13 +146,13 @@ export default function LivePage() {
           </form>
           <ul className="space-y-2">
             {d?.questions.map((x) => (
-              <li key={x.id} className={`flex gap-3 rounded-xl border p-3 text-sm ${x.answered ? "border-green-200 bg-green-50 opacity-70" : "border-slate-200"}`}>
-                <button onClick={() => act({ action: "upvote", id: x.id })} className="flex w-10 shrink-0 flex-col items-center rounded-lg bg-slate-50 py-1 text-xs font-bold hover:bg-brand/10">
+              <li key={x.id} className={`flex gap-3 rounded-xl border p-3 text-sm ${x.answered ? "border-green-200 bg-green-50 opacity-70" : "border-line"}`}>
+                <button onClick={() => act({ action: "upvote", id: x.id })} className="flex w-10 shrink-0 flex-col items-center rounded-lg bg-cream py-1 text-xs font-bold hover:bg-brand/10">
                   ▲<span>{x.upvotes}</span>
                 </button>
                 <div className="flex-1">
                   <div>{x.body}</div>
-                  <div className="text-xs text-slate-500">{x.author}</div>
+                  <div className="text-xs text-ink-soft">{x.author}</div>
                 </div>
                 {host && !x.answered && (
                   <button onClick={() => act({ action: "answered", id: x.id })} className="self-start text-xs text-green-700 underline">

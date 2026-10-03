@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { BRANCHES, YEARS, WORKSHOP_TITLE, TARGET } from "@/lib/config";
 import { LANGS, t, type Lang } from "@/lib/i18n";
 import { post, visitorId } from "@/lib/client";
+import { ReferralNetwork, Rings } from "@/components/Art";
 
 type Idea = { title: string; pitch: string; why_it_fits_you: string; steps: string[]; tools: string[]; resume_line: string; source: string };
 
@@ -135,28 +136,29 @@ export default function Funnel(p: Props) {
   const pct = useMemo(() => Math.min(100, Math.round((p.registered / TARGET) * 100)), [p.registered]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10" lang={lang}>
-      <div className="mb-6 flex flex-wrap justify-end gap-1" role="group" aria-label="Language">
+    <div className="relative mx-auto max-w-6xl px-4 py-10" lang={lang}>
+      <div className="relative mb-6 flex flex-wrap justify-end gap-1" role="group" aria-label="Language">
         {(Object.keys(LANGS) as Lang[]).map((l) => (
-          <button key={l} onClick={() => switchLang(l)} className={`rounded-full px-3 py-1 text-sm ${l === lang ? "bg-ink text-white" : "bg-white text-slate-600 hover:bg-slate-100"}`}>
+          <button key={l} onClick={() => switchLang(l)} className={`rounded-full border px-3 py-1 text-sm ${l === lang ? "border-ink bg-ink text-white" : "border-line bg-paper text-ink-soft hover:bg-sand"}`}>
             {LANGS[l].native}
           </button>
         ))}
       </div>
-      <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
+      <div className="relative grid gap-8 lg:grid-cols-[1.1fr_1fr]">
         <section className="flex flex-col justify-center gap-6">
           {p.inviter && <div className="pill w-fit bg-sun/30 text-ink">🙌 {tr("invited", { name: p.inviter.name, college: p.inviter.college })}</div>}
           <div className="pill w-fit bg-brand/10 text-brand">{tr("badge")}</div>
-          <h1 className={`text-4xl font-extrabold leading-tight tracking-tight transition-opacity sm:text-5xl ${copy ? "opacity-100" : "opacity-0"}`}>
+          <h1 className={`text-4xl font-bold leading-[1.05] tracking-tight transition-opacity sm:text-6xl ${copy ? "opacity-100" : "opacity-0"}`}>
             {copy?.headline ?? tr("hero_h")}
           </h1>
-          <p className={`text-lg text-slate-600 transition-opacity ${copy ? "opacity-100" : "opacity-0"}`}>{copy?.sub ?? " "}</p>
+          <p className={`text-lg text-ink-soft transition-opacity ${copy ? "opacity-100" : "opacity-0"}`}>{copy?.sub ?? " "}</p>
 
           <div className="grid grid-cols-3 gap-3 text-center">
             {countdown.map(([n, k]) => (
-              <div key={k} className="card p-3">
-                <div className="text-2xl font-bold tabular-nums">{n}</div>
-                <div className="text-xs text-slate-500">{tr(k)}</div>
+              <div key={k} className="relative overflow-hidden rounded-2xl bg-ink p-3 text-white">
+                <Rings className="-right-10 -top-10 h-28 w-28" stroke="#F6F4EF" />
+                <div className="relative font-[family-name:var(--font-display)] text-3xl font-bold tabular-nums">{n}</div>
+                <div className="relative text-xs text-white/70">{tr(k)}</div>
               </div>
             ))}
           </div>
@@ -164,29 +166,30 @@ export default function Funnel(p: Props) {
           <div className="card">
             <div className="mb-2 flex items-baseline justify-between text-sm">
               <span className="font-semibold">{tr("registered_count", { n: p.registered })}</span>
-              <span className="text-slate-500">{tr("seats", { n: TARGET })}</span>
+              <span className="text-ink-soft">{tr("seats", { n: TARGET })}</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-              <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
+            <div className="h-2.5 overflow-hidden rounded-full bg-sand">
+              <div className="h-full rounded-full bg-gradient-to-r from-sun to-brand" style={{ width: `${pct}%` }} />
             </div>
             {p.topColleges.length > 0 && (
-              <p className="mt-3 text-xs text-slate-500">
+              <p className="mt-3 text-xs text-ink-soft">
                 {tr("leading")}: {p.topColleges.map((c) => `${c.name} (${c.n})`).join(" · ")}
               </p>
             )}
           </div>
 
-          <ul className="grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+          <ul className="grid gap-2 text-sm text-ink sm:grid-cols-2">
             {(["b1", "b2", "b3", "b4"] as const).map((k) => (
-              <li key={k} className="flex gap-2">
-                <span className="text-brand">✓</span>
+              <li key={k} className="flex items-start gap-2">
+                <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand text-[11px] text-white">✓</span>
                 {tr(k)}
               </li>
             ))}
           </ul>
         </section>
 
-        <section className="card self-start p-6">
+        <div className="self-start">
+        <section className="card relative border-t-4 border-t-brand p-6">
           <Steps stage={stage} labels={[tr("step_idea"), tr("step_register"), tr("step_verify")]} />
           {error && <div className="mb-4 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
@@ -194,7 +197,7 @@ export default function Funnel(p: Props) {
             <form onSubmit={getIdea} className="flex flex-col gap-4" onFocus={startForm}>
               <div>
                 <h2 className="text-xl font-bold">{tr("idea_title")}</h2>
-                <p className="text-sm text-slate-500">{tr("idea_sub")}</p>
+                <p className="text-sm text-ink-soft">{tr("idea_sub")}</p>
               </div>
               <div>
                 <label className="label">{tr("branch")}</label>
@@ -212,7 +215,7 @@ export default function Funnel(p: Props) {
                 <label className="label">{tr("skill")}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {SKILLS.map(([value, key]) => (
-                    <button type="button" key={value} onClick={() => setIdeaForm({ ...ideaForm, skill: value })} className={`btn ${ideaForm.skill === value ? "bg-brand text-white" : "border border-slate-300 bg-white"}`}>
+                    <button type="button" key={value} onClick={() => setIdeaForm({ ...ideaForm, skill: value })} className={`btn ${ideaForm.skill === value ? "bg-brand text-white" : "border border-line bg-paper"}`}>
                       {tr(key)}
                     </button>
                   ))}
@@ -245,7 +248,7 @@ export default function Funnel(p: Props) {
                   <option key={y}>{y}</option>
                 ))}
               </select>
-              <div className="flex items-center gap-3 text-sm text-slate-600">
+              <div className="flex items-center gap-3 text-sm text-ink-soft">
                 {tr("send_code_via")}
                 {(["email", "whatsapp"] as const).map((v) => (
                   <label key={v} className="flex items-center gap-1">
@@ -256,7 +259,7 @@ export default function Funnel(p: Props) {
               <button className="btn-primary py-3 text-base" disabled={busy}>
                 {busy ? tr("saving") : tr("register_btn")}
               </button>
-              <button type="button" className="text-xs text-slate-500 underline" onClick={() => setStage("idea")}>
+              <button type="button" className="text-xs text-ink-soft underline" onClick={() => setStage("idea")}>
                 {tr("try_other")}
               </button>
             </form>
@@ -270,19 +273,30 @@ export default function Funnel(p: Props) {
                   {tr("demo_note")} <b className="font-mono text-base">{pending.demoOtp}</b>
                 </div>
               ) : (
-                <p className="text-sm text-slate-500">{tr("otp_sent", { via: pending.via })}</p>
+                <p className="text-sm text-ink-soft">{tr("otp_sent", { via: pending.via })}</p>
               )}
               <input className="input text-center font-mono text-2xl tracking-[0.5em]" required inputMode="numeric" maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} />
               <button className="btn-primary py-3" disabled={busy || otp.length !== 6}>
                 {busy ? tr("checking") : tr("verify_btn")}
               </button>
-              <button type="button" onClick={resend} className="text-xs text-slate-500 underline">
+              <button type="button" onClick={resend} className="text-xs text-ink-soft underline">
                 {tr("resend")}
               </button>
             </form>
           )}
-          <p className="mt-4 text-center text-xs text-slate-400">{WORKSHOP_TITLE}</p>
+          <p className="mt-4 text-center text-xs text-ink-soft/70">{WORKSHOP_TITLE}</p>
         </section>
+          <div className="relative mt-6 hidden overflow-hidden rounded-2xl border border-line bg-paper/70 p-5 lg:block">
+            <div className="flex items-center gap-4">
+              <ReferralNetwork className="h-36 w-44 shrink-0" />
+              <div>
+                <p className="eyebrow">How it spreads</p>
+                <p className="mt-1 font-[family-name:var(--font-display)] text-lg font-bold leading-snug">You → 4 friends → their friends.</p>
+                <p className="mt-1 text-sm text-ink-soft">Every sign-up gets a link. When friends join through it, your college climbs the leaderboard.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -294,10 +308,10 @@ function Steps({ stage, labels }: { stage: string; labels: string[] }) {
   return (
     <ol className="mb-5 flex items-center gap-2 text-xs font-semibold">
       {keys.map((k, i) => (
-        <li key={k} className={`flex items-center gap-2 ${i <= idx ? "text-brand" : "text-slate-400"}`}>
-          <span className={`grid h-6 w-6 place-items-center rounded-full ${i <= idx ? "bg-brand text-white" : "bg-slate-100"}`}>{i + 1}</span>
+        <li key={k} className={`flex items-center gap-2 ${i <= idx ? "text-brand" : "text-ink-soft"}`}>
+          <span className={`grid h-6 w-6 place-items-center rounded-full ${i <= idx ? "bg-brand text-white" : "bg-sand text-ink-soft"}`}>{i + 1}</span>
           {labels[i]}
-          {i < keys.length - 1 && <span className="h-px w-6 bg-slate-200" />}
+          {i < keys.length - 1 && <span className="h-px w-6 bg-line" />}
         </li>
       ))}
     </ol>
@@ -307,32 +321,43 @@ function Steps({ stage, labels }: { stage: string; labels: string[] }) {
 export function IdeaCard({ idea, compact = false, labels }: { idea: Idea; compact?: boolean; labels?: { your: string; ai: string; tpl: string } }) {
   const l = labels ?? { your: "Your workshop project", ai: "AI-generated", tpl: "Template" };
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-brand-dark to-brand p-5 text-white">
-      <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-wide text-white/70">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink to-[#24406b] p-5 text-white">
+      <svg aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56" viewBox="0 0 200 200">
+        <defs>
+          <radialGradient id="ideaGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#F08A4B" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#F08A4B" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="100" fill="url(#ideaGlow)" />
+        <circle cx="100" cy="100" r="46" fill="none" stroke="#F6F4EF" strokeOpacity="0.15" strokeWidth="2" />
+        <circle cx="100" cy="100" r="72" fill="none" stroke="#F6F4EF" strokeOpacity="0.1" strokeWidth="2" />
+      </svg>
+      <div className="relative mb-1 flex items-center justify-between text-xs uppercase tracking-wide text-white/70">
         <span>{l.your}</span>
         <span>{idea.source === "claude" ? l.ai : l.tpl}</span>
       </div>
-      <h3 className="text-2xl font-extrabold">{idea.title}</h3>
-      <p className="mt-1 text-white/90">{idea.pitch}</p>
+      <h3 className="relative text-2xl font-bold">{idea.title}</h3>
+      <p className="relative mt-1 text-white/90">{idea.pitch}</p>
       {!compact && (
         <>
-          <p className="mt-3 text-sm text-white/80">{idea.why_it_fits_you}</p>
-          <ol className="mt-3 space-y-1 text-sm">
+          <p className="relative mt-3 text-sm text-white/80">{idea.why_it_fits_you}</p>
+          <ol className="relative mt-3 space-y-1 text-sm">
             {idea.steps.map((s, i) => (
               <li key={i} className="flex gap-2">
-                <span className="font-mono text-sun">{(i + 1) * 15}m</span>
+                <span className="w-9 shrink-0 font-mono text-sun">{(i + 1) * 15}m</span>
                 {s}
               </li>
             ))}
           </ol>
-          <div className="mt-3 flex flex-wrap gap-1">
+          <div className="relative mt-3 flex flex-wrap gap-1">
             {idea.tools.map((tool) => (
               <span key={tool} className="pill bg-white/15 text-white">
                 {tool}
               </span>
             ))}
           </div>
-          <p className="mt-3 rounded-xl bg-white/10 p-3 text-sm italic">📄 {idea.resume_line}</p>
+          <p className="relative mt-3 rounded-xl bg-white/10 p-3 text-sm italic">📄 {idea.resume_line}</p>
         </>
       )}
     </div>

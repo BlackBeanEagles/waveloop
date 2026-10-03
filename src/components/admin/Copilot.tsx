@@ -53,7 +53,7 @@ export default function Copilot({ onVariantAdded }: { onVariantAdded: () => void
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold">🧠 Growth copilot</h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-soft">
             Reads the live numbers, finds the biggest leak, proposes the next 3 experiments and writes new headlines for the bandit.
             {run && ` Last run ${new Date(run.created_at).toLocaleTimeString()} · ${run.engine === "claude" ? "Claude" : "rules engine (no API key)"}`}
           </p>
@@ -64,7 +64,7 @@ export default function Copilot({ onVariantAdded }: { onVariantAdded: () => void
       </div>
       {err && <div className="mb-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>}
       {!o ? (
-        <p className="text-sm text-slate-500">No analysis yet. Click the button. It only uses your real data.</p>
+        <p className="text-sm text-ink-soft">No analysis yet. Click the button. It only uses your real data.</p>
       ) : (
         <div className="flex flex-col gap-4">
           <div className={`rounded-xl px-4 py-3 text-sm ${o.data_sufficient ? "bg-brand/10 text-ink" : "bg-amber-50 text-amber-900"}`}>
@@ -76,38 +76,38 @@ export default function Copilot({ onVariantAdded }: { onVariantAdded: () => void
               <span className="pill bg-red-100 text-red-800">
                 ⚠ Leak: {o.biggest_leak.from_stage} → {o.biggest_leak.to_stage} · {o.biggest_leak.conversion_pct}%
               </span>
-              <span className="text-slate-600">{o.biggest_leak.why_it_matters}</span>
+              <span className="text-ink-soft">{o.biggest_leak.why_it_matters}</span>
             </div>
           )}
           <div className="grid gap-3 lg:grid-cols-3">
             {o.actions.map((a, i) => (
-              <div key={i} className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
+              <div key={i} className="rounded-xl border border-line bg-paper p-4 text-sm">
                 <div className="mb-1 flex items-start justify-between gap-2">
                   <span className="font-bold">
                     {i + 1}. {a.title}
                   </span>
-                  <span className="pill shrink-0 bg-slate-100 text-slate-600">{a.effort}</span>
+                  <span className="pill shrink-0 bg-sand text-ink-soft">{a.effort}</span>
                 </div>
-                <p className="text-slate-600">
+                <p className="text-ink-soft">
                   <b className="text-ink">Why:</b> {a.hypothesis}
                 </p>
-                <p className="mt-1 text-slate-600">
+                <p className="mt-1 text-ink-soft">
                   <b className="text-ink">Do:</b> {a.change}
                 </p>
-                <p className="mt-1 text-xs text-slate-500">Measure: {a.success_metric}</p>
+                <p className="mt-1 text-xs text-ink-soft">Measure: {a.success_metric}</p>
               </div>
             ))}
           </div>
           <div className="grid gap-3 lg:grid-cols-[1.4fr_1fr]">
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-line bg-paper p-4">
               <h3 className="mb-2 text-sm font-bold">New headlines to test</h3>
               <ul className="space-y-3">
                 {o.new_variants.map((v, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm">
                     <div className="flex-1">
                       <div className="font-semibold">{v.headline}</div>
-                      <div className="text-slate-600">{v.sub}</div>
-                      <div className="text-xs text-slate-400">{v.rationale}</div>
+                      <div className="text-ink-soft">{v.sub}</div>
+                      <div className="text-xs text-ink-soft/70">{v.rationale}</div>
                     </div>
                     <button className="btn-ghost shrink-0 px-2 py-1 text-xs" disabled={!!added[i]} onClick={() => addVariant(i)}>
                       {added[i] ? `✓ live as ${added[i]}` : "+ Add to bandit"}
@@ -116,14 +116,14 @@ export default function Copilot({ onVariantAdded }: { onVariantAdded: () => void
                 ))}
               </ul>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
+            <div className="rounded-xl border border-line bg-paper p-4 text-sm">
               <h3 className="mb-2 font-bold">Ambassador post</h3>
               <pre className="whitespace-pre-wrap rounded-lg bg-[#d9fdd3] p-3 font-sans">{o.whatsapp_post}</pre>
               <button className="btn-ghost mt-2 px-2 py-1 text-xs" onClick={() => navigator.clipboard.writeText(o.whatsapp_post)}>
                 Copy
               </button>
               <h3 className="mb-1 mt-3 font-bold">Risks</h3>
-              <ul className="list-disc space-y-1 pl-4 text-slate-600">
+              <ul className="list-disc space-y-1 pl-4 text-ink-soft">
                 {o.risks.map((r) => (
                   <li key={r}>{r}</li>
                 ))}
