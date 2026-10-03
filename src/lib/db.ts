@@ -1,7 +1,10 @@
 import { createClient, type Client, type InValue } from "@libsql/client";
 
 // One code path for local and hosted: a file: URL locally, a Turso libsql:// URL in production.
-const url = process.env.DATABASE_URL ?? "file:waveloop.db";
+// Vercel's filesystem is read-only except /tmp, which is wiped on every cold start. Without a Turso URL the app still
+// boots there, and the dashboard warns that data will not persist.
+export const ephemeralDb = !process.env.DATABASE_URL && Boolean(process.env.VERCEL);
+const url = process.env.DATABASE_URL ?? (ephemeralDb ? "file:/tmp/waveloop.db" : "file:waveloop.db");
 const authToken = process.env.DATABASE_AUTH_TOKEN;
 
 const globalForDb = globalThis as unknown as { __db?: Client; __dbReady?: Promise<void>; __dbSchema?: string };

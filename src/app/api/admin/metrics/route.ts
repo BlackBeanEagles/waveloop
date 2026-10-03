@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { dashboard } from "@/lib/metrics";
 import { integrations } from "@/lib/config";
+import { ephemeralDb } from "@/lib/db";
 import { adminAllowed, json } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export async function GET(req: NextRequest) {
   const data = await dashboard();
   return json({
     ...data,
+    ephemeralDb,
     integrations: { claude: integrations.claude(), email: integrations.email(), twilio: integrations.twilio(), hostedDb: integrations.hostedDb() },
   });
 }

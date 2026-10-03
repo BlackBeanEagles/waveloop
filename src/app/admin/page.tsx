@@ -16,6 +16,7 @@ const S2 = "#eb6834";
 const GRID = "#e5e7eb";
 
 type D = {
+  ephemeralDb?: boolean;
   integrations: Record<string, boolean>;
   clock: { dayNumber: number; workshop: string };
   kpis: { counted: number; registered: number; verified: number; flagged: number; attended: number; viaReferral: number; kFactor: number; projected: number; neededPerDay: number; costPerReg: number; target: number };
@@ -118,6 +119,11 @@ export default function Admin() {
           </button>
         </div>
       </div>
+      {d.ephemeralDb && (
+        <div className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+          ⚠ <b>Data is not being saved permanently.</b> This deployment has no <code className="font-mono">DATABASE_URL</code>, so it uses a temporary file that Vercel wipes on restart. Add a Turso database before sharing the link.
+        </div>
+      )}
       {note && <div className="mb-4 rounded-xl bg-blue-50 px-3 py-2 font-mono text-xs text-blue-900">{note}</div>}
 
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
