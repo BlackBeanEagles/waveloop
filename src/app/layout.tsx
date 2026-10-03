@@ -17,6 +17,8 @@ const TOUR = [
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/ambassador", label: "Ambassadors" },
   { href: "/live", label: "Live workshop" },
+  { href: "/help", label: "Help desk" },
+  { href: "/mentor", label: "Mentors" },
   { href: "/submit", label: "AI grading" },
   { href: "/admin", label: "Growth dashboard" },
 ];

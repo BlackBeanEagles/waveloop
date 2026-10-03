@@ -3,6 +3,7 @@ import { z } from "zod";
 import { gradeProject } from "@/lib/ai";
 import { one, run, now } from "@/lib/db";
 import { body, json, rateLimited, tooMany } from "@/lib/http";
+import { emit } from "@/lib/webhooks";
 
 const Schema = z.object({
   name: z.string().trim().min(2).max(80),
@@ -36,5 +37,7 @@ export async function POST(req: NextRequest) {
       now(),
     ],
   );
-  return json({ id: Number(r.lastInsertRowid), grade });
+  const id = Number(r.lastInsertRowid);
+  await emit("submission.graded", { submission_id: id, user_id: user ? Number(user.id) : null, name: d.name, title: d.title, repo_url: d.repoUrl || null, total: grade.total, graded_by: grade.graded_by });
+  return json({ id, grade });
 }

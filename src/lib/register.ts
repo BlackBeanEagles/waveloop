@@ -3,6 +3,7 @@ import { one, run, now } from "./db";
 import { collegeIdByName, hash, issueOtp, refCodeFor, scheduleDrip, scoreFraud, track, FRAUD_THRESHOLD } from "./growth";
 import { sendEmail, sendWhatsApp } from "./messaging";
 import { WORKSHOP_TITLE, integrations } from "./config";
+import { emit } from "./webhooks";
 
 export const RegisterSchema = z.object({
   name: z.string().trim().min(2).max(80),
@@ -89,6 +90,7 @@ export async function registerUser(raw: RegisterInput, ctx: { ip: string; device
   await track("registered", { visitorId: d.visitorId ?? undefined, userId, channel, variant: d.variant ?? undefined });
   const ideaTitle = (d.idea as { title?: string } | undefined)?.title;
   await scheduleDrip(userId, d.name, refCode, d.lang, ideaTitle);
+  await emit("user.registered", { user_id: userId, name: d.name, email: d.email, phone: d.phone, college: d.college, branch: d.branch, year: d.year, channel, lang: d.lang, ref_code: refCode, referred_by: d.ref ?? null, fraud_flagged: fraud.score >= FRAUD_THRESHOLD });
 
   const code = await issueOtp(userId);
   const via = await deliverOtp(d.otpVia, d.email, d.phone, code);
@@ -107,4 +109,19 @@ async function deliverOtp(via: "email" | "whatsapp", email: string, phone: strin
   }
   // No provider configured: demo mode shows the code on screen.
   return "demo";
+}
+
+// Shared by the web OTP flow and the WhatsApp bot once a number is proven.
+export async function afterVerified(userId: number) {
+  const u = await one<{ id: number; name: string; email: string; phone: string; channel: string; ref_code: string; referred_by: number | null; fraud_score: number }>(
+    "SELECT id, name, email, phone, channel, ref_code, referred_by, fraud_score FROM users WHERE id = ?",
+    [userId],
+  );
+  if (!u) return;
+  await track("verified", { userId, channel: String(u.channel) });
+  await emit("user.verified", { user_id: userId, name: u.name, email: u.email, phone: u.phone, ref_code: u.ref_code });
+  if (u.referred_by != null && Number(u.fraud_score) < FRAUD_THRESHOLD) {
+    const r = await one<{ ref_code: string; name: string }>("SELECT ref_code, name FROM users WHERE id = ?", [u.referred_by]);
+    if (r) await emit("referral.counted", { referrer_code: r.ref_code, referrer_name: r.name, referee_user_id: userId });
+  }
 }

@@ -1,7 +1,7 @@
 import { one, run, now, all } from "./db";
 import { BRANCHES, YEARS, WORKSHOP_TITLE } from "./config";
 import { campaignClock, fmtIST, referralCount, referralLink, rewardState, track } from "./growth";
-import { registerUser } from "./register";
+import { afterVerified, registerUser } from "./register";
 import { answerFaq, generateIdea } from "./ai";
 import { detectScript, isLang, m, type Lang } from "./i18n";
 
@@ -187,8 +187,8 @@ async function step(phone: string, msg: string, ctx: { ip: string }): Promise<st
         return [`⚠ ${res.error}`, m(L, "ask_email", { first: s.data.name.split(" ")[0] })];
       }
       // The message came from this number, so WhatsApp has already proven the phone. No OTP needed.
-      await run("UPDATE users SET verified = 1, verified_at = ?, otp_hash = NULL WHERE id = ? AND verified = 0", [now(), res.userId]);
-      await track("verified", { userId: res.userId, channel: "whatsapp_bot" });
+      const upd = await run("UPDATE users SET verified = 1, verified_at = ?, otp_hash = NULL WHERE id = ? AND verified = 0", [now(), res.userId]);
+      if (upd.rowsAffected) await afterVerified(res.userId);
       s.state = "menu";
       s.data = { lang: L };
       await save(phone, s);

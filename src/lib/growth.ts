@@ -160,7 +160,7 @@ export async function checkOtp(userId: number, code: string) {
     [userId],
   );
   if (!u) return { ok: false, error: "Unknown registration" };
-  if (Number(u.verified)) return { ok: true };
+  if (Number(u.verified)) return { ok: true, firstTime: false };
   if (!u.otp_hash || !u.otp_expires || new Date(u.otp_expires).getTime() < Date.now()) return { ok: false, error: "Code expired. Request a new one." };
   const tries = (otpFailures.get(userId) ?? 0) + 1;
   if (tries > MAX_OTP_TRIES) return { ok: false, error: "Too many attempts. Request a new code." };
@@ -170,7 +170,7 @@ export async function checkOtp(userId: number, code: string) {
   }
   otpFailures.delete(userId);
   await run("UPDATE users SET verified = 1, verified_at = ?, otp_hash = NULL WHERE id = ?", [now(), userId]);
-  return { ok: true };
+  return { ok: true, firstTime: true };
 }
 
 // ---------- referrals ----------

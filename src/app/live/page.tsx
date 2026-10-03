@@ -46,6 +46,9 @@ export default function LivePage() {
           <h1 className="mt-2 text-3xl font-extrabold">Workshop room</h1>
           <p className="text-slate-500">Polls and Q&amp;A that run alongside the stream, so 500 people stay engaged instead of muted.</p>
         </div>
+        <a href="/help" className="btn-primary">
+          🆘 Stuck? Get help
+        </a>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={host} onChange={(e) => setHost(e.target.checked)} /> Host controls
         </label>

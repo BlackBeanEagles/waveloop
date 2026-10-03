@@ -8,6 +8,7 @@ import Copilot from "@/components/admin/Copilot";
 import Variants, { type V } from "@/components/admin/Variants";
 import ReferralTree from "@/components/admin/ReferralTree";
 import ShowUp from "@/components/admin/ShowUp";
+import Webhooks from "@/components/admin/Webhooks";
 
 // Validated categorical slots 1-2 (reference palette, in fixed order).
 const S1 = "#2a78d6";
@@ -255,6 +256,10 @@ export default function Admin() {
         <ReferralTree refreshKey={Math.floor(tick / 3)} />
       </div>
 
+      <HelpDeskCard refreshKey={tick} />
+
+      <Webhooks refreshKey={Math.floor(tick / 3)} />
+
       <Panel title="WhatsApp drip engine">
         <div className="mb-3 flex flex-wrap gap-2 text-xs">
           {summarizeOutbox(d.outbox).map(([t, s]) => (
@@ -298,6 +303,38 @@ export default function Admin() {
           Rules are checked at send time: no referral nudge to people who already referred, no project reminder to no-shows. Runs on Vercel Cron in production.
         </p>
       </Panel>
+    </div>
+  );
+}
+
+function HelpDeskCard({ refreshKey }: { refreshKey: number }) {
+  const [s, setS] = useState<{ total: number; selfSolved: number; waiting: number; noFeedback: number; deflection: number } | null>(null);
+  useEffect(() => {
+    fetch("/api/admin/helpdesk", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setS(d.stats));
+  }, [refreshKey]);
+  if (!s) return null;
+  return (
+    <div className="card mb-6 flex flex-wrap items-center gap-6">
+      <div>
+        <h2 className="font-bold">Live help desk</h2>
+        <p className="text-xs text-slate-500">AI answers first; mentors only get what it can&apos;t fix.</p>
+      </div>
+      {[
+        [s.total, "requests"],
+        [s.selfSolved, "fixed by AI"],
+        [s.waiting, "⚠ waiting for mentor"],
+        [`${Math.round(s.deflection * 100)}%`, "solved without mentor"],
+      ].map(([n, l]) => (
+        <div key={String(l)} className="text-center">
+          <div className="text-2xl font-extrabold tabular-nums">{n}</div>
+          <div className="text-xs text-slate-500">{l}</div>
+        </div>
+      ))}
+      <a href="/mentor" className="btn-ghost ml-auto">
+        Open mentor queue →
+      </a>
     </div>
   );
 }

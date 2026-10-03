@@ -136,6 +136,40 @@ CREATE TABLE IF NOT EXISTS copilot_runs (
   engine TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS help_tickets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER REFERENCES users(id),
+  name TEXT NOT NULL,
+  step TEXT,
+  problem TEXT NOT NULL,
+  answer TEXT,
+  engine TEXT,
+  status TEXT NOT NULL DEFAULT 'answered',
+  mentor_note TEXT,
+  created_at TEXT NOT NULL,
+  resolved_at TEXT
+);
+CREATE TABLE IF NOT EXISTS webhooks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  url TEXT NOT NULL,
+  events TEXT NOT NULL,
+  secret TEXT NOT NULL,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS webhook_deliveries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  webhook_id INTEGER NOT NULL REFERENCES webhooks(id),
+  event TEXT NOT NULL,
+  payload TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  attempts INTEGER NOT NULL DEFAULT 0,
+  response_code INTEGER,
+  error TEXT,
+  next_attempt_at TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS deliveries_due ON webhook_deliveries(status, next_attempt_at);
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL

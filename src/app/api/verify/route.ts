@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
-import { checkOtp, issueOtp, track } from "@/lib/growth";
+import { checkOtp, issueOtp } from "@/lib/growth";
+import { afterVerified } from "@/lib/register";
 import { one } from "@/lib/db";
 import { integrations } from "@/lib/config";
 import { sendEmail } from "@/lib/messaging";
@@ -21,8 +22,9 @@ export async function POST(req: NextRequest) {
   }
   const res = await checkOtp(b.userId, b.code ?? "");
   if (res.ok) {
-    const u = await one<{ ref_code: string; channel: string }>("SELECT ref_code, channel FROM users WHERE id = ?", [b.userId]);
-    await track("verified", { userId: b.userId, channel: u?.channel });
+    // checkOtp also returns ok for an already-verified user; only fire events on the first verification.
+    if (res.firstTime) await afterVerified(b.userId);
+    const u = await one<{ ref_code: string }>("SELECT ref_code FROM users WHERE id = ?", [b.userId]);
     return json({ ok: true, refCode: u?.ref_code });
   }
   return json(res, 400);

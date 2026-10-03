@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { one, run } from "@/lib/db";
 import { track } from "@/lib/growth";
+import { emit } from "@/lib/webhooks";
 import { body, json, rateLimited, tooMany } from "@/lib/http";
 
 // Attendance: a registered student checks in from the live room with their email or phone.
@@ -18,6 +19,7 @@ export async function POST(req: NextRequest) {
   if (!Number(u.attended)) {
     await run("UPDATE users SET attended = 1 WHERE id = ?", [u.id]);
     await track("checked_in", { userId: Number(u.id) });
+    await emit("user.checked_in", { user_id: Number(u.id), name: u.name });
   }
   return json({ ok: true, name: String(u.name).split(" ")[0] });
 }
