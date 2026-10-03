@@ -91,7 +91,7 @@ export default function WhatsAppSim() {
               <b>This simulator</b> calls <code className="font-mono text-xs">/api/whatsapp/simulator</code>.
             </li>
             <li>
-              <b>Real WhatsApp</b>: set the Twilio sandbox webhook to <code className="font-mono text-xs">/api/whatsapp/twilio</code>. The same state machine replies with TwiML, and requests are checked with Twilio&apos;s signature.
+              <b>Real WhatsApp, free</b>: Meta&apos;s official Cloud API calls <code className="font-mono text-xs">/api/whatsapp/meta</code>; every request is checked against Meta&apos;s signature and retries are de-duplicated. Twilio (<code className="font-mono text-xs">/api/whatsapp/twilio</code>) works too.
             </li>
             <li>Free-text questions are matched against FAQs first, then answered by Claude, with strict rules not to invent dates or prices.</li>
             <li>Referral links pre-fill &quot;JOIN CODE&quot;, so referrals are credited even when someone registers in the chat.</li>

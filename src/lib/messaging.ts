@@ -3,9 +3,10 @@ import { integrations } from "./config";
 import { referralCount } from "./growth";
 import { RESCUE_THRESHOLD, scoreUser } from "./showup";
 
-export type SendResult = { provider: "twilio" | "resend" | "no-provider"; ok: boolean; error?: string };
+export type SendResult = { provider: "meta" | "twilio" | "resend" | "no-provider"; ok: boolean; error?: string };
 
 export async function sendWhatsApp(to: string, body: string): Promise<SendResult> {
+  if (integrations.metaWhatsApp()) return sendViaMeta(to, body);
   if (!integrations.twilio()) return { provider: "no-provider", ok: true };
   const sid = process.env.TWILIO_ACCOUNT_SID!;
   const auth = Buffer.from(`${sid}:${process.env.TWILIO_AUTH_TOKEN}`).toString("base64");
@@ -24,6 +25,26 @@ export async function sendWhatsApp(to: string, body: string): Promise<SendResult
     return { provider: "twilio", ok: true };
   } catch (e) {
     return { provider: "twilio", ok: false, error: String(e) };
+  }
+}
+
+// Meta WhatsApp Cloud API. Free-form text is allowed within 24h of the student's last message; outside that window
+// Meta rejects it (error 131047) unless an approved template is used, and the outbox records the failure.
+async function sendViaMeta(to: string, body: string): Promise<SendResult> {
+  const version = process.env.WHATSAPP_API_VERSION ?? "v23.0";
+  const digits = to.replace(/\D/g, "");
+  const recipient = digits.length === 10 ? `91${digits}` : digits;
+  try {
+    const r = await fetch(`https://graph.facebook.com/${version}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ messaging_product: "whatsapp", to: recipient, type: "text", text: { preview_url: true, body: body.slice(0, 4096) } }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!r.ok) return { provider: "meta", ok: false, error: `${r.status} ${(await r.text()).slice(0, 200)}` };
+    return { provider: "meta", ok: true };
+  } catch (e) {
+    return { provider: "meta", ok: false, error: String(e) };
   }
 }
 

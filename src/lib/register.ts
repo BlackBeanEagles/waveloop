@@ -99,7 +99,7 @@ export async function registerUser(raw: RegisterInput, ctx: { ip: string; device
 
 async function deliverOtp(via: "email" | "whatsapp", email: string, phone: string, code: string): Promise<string> {
   const msg = `Your verification code for "${WORKSHOP_TITLE}" is ${code}. It expires in 10 minutes.`;
-  if (via === "whatsapp" && integrations.twilio()) {
+  if (via === "whatsapp" && (integrations.metaWhatsApp() || integrations.twilio())) {
     const r = await sendWhatsApp(phone, msg);
     if (r.ok) return "whatsapp";
   }

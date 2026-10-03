@@ -85,6 +85,8 @@ export function siteUrl() {
 export const integrations = {
   claude: () => Boolean(process.env.ANTHROPIC_API_KEY),
   email: () => Boolean(process.env.RESEND_API_KEY),
+  // Meta WhatsApp Cloud API: free, official; preferred over Twilio when both are set.
+  metaWhatsApp: () => Boolean(process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID),
   twilio: () => Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_WHATSAPP_FROM),
   hostedDb: () => Boolean(process.env.DATABASE_URL?.startsWith("libsql://")),
 };
