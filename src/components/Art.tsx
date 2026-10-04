@@ -73,8 +73,8 @@ export function PageHeader({ eyebrow, title, sub, children }: { eyebrow: string;
     <div className="relative mb-8 flex flex-wrap items-end justify-between gap-4">
       <Glow className="-left-24 -top-32 h-72 w-72" />
       <div className="relative">
-        <p className="eyebrow">{eyebrow}</p>
-        <h1 className="mt-1 text-3xl font-bold sm:text-4xl">{title}</h1>
+        <span className="sticker -rotate-2 bg-sunny text-xs uppercase tracking-wider">{eyebrow}</span>
+        <h1 className="mt-3 text-4xl font-bold sm:text-5xl">{title}</h1>
         {sub && <p className="mt-2 max-w-2xl text-ink-soft">{sub}</p>}
       </div>
       {children && <div className="relative">{children}</div>}

@@ -14,7 +14,7 @@ export default function LivePage() {
     <div className="mx-auto max-w-2xl px-4 py-10">
       <PageHeader eyebrow="Workshop day" title="Check in" sub="Tell us you're here. Checking in unlocks your project review and certificate after the session." />
       <form
-        className="card flex flex-col gap-3"
+        className="card-pop flex flex-col gap-3"
         onSubmit={async (e) => {
           e.preventDefault();
           setBusy(true);

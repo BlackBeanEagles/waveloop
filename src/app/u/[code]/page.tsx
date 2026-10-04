@@ -43,7 +43,7 @@ export default async function Me({ params, searchParams }: { params: Promise<{ c
       )}
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="flex flex-col gap-6">
-          <div className="card">
+          <div className="card-pop">
             <h1 className="text-2xl font-bold">Bring your friends, unlock rewards</h1>
             <p className="mt-1 text-sm text-ink-soft">A referral counts once your friend verifies their number. {refs > 0 ? `Rank #${above.length + 1} right now.` : "Get your first referral to enter the leaderboard."}</p>
             <div className="mt-5 grid grid-cols-3 gap-3 text-center">

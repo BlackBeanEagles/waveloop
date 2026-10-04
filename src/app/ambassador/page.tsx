@@ -34,7 +34,7 @@ export default function AmbassadorSignup() {
           <li>📊 Your own live dashboard of clicks and sign-ups per group</li>
         </ul>
       </div>
-      <form onSubmit={submit} className="card flex flex-col gap-3">
+      <form onSubmit={submit} className="card-pop flex flex-col gap-3">
         <h2 className="text-lg font-bold">Become an ambassador</h2>
         {err && <div className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>}
         <input className="input" required placeholder="Full name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />

@@ -68,20 +68,46 @@ export default function Admin() {
 
   if (locked)
     return (
-      <form
-        className="card mx-auto mt-16 flex max-w-sm flex-col gap-3"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const r = await post<{ ok: boolean; error?: string }>("/api/admin/login", { key });
-          if (r.ok) load();
-          else setNote(r.error ?? "Wrong key");
-        }}
-      >
-        <h1 className="text-lg font-bold">Admin login</h1>
-        {note && <div className="text-sm text-red-700">{note}</div>}
-        <input className="input" type="password" placeholder="Admin key" value={key} onChange={(e) => setKey(e.target.value)} />
-        <button className="btn-primary">Open dashboard</button>
-      </form>
+      <div className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-16 lg:grid-cols-2">
+        <div className="flex flex-col gap-4">
+          <span className="sticker w-fit -rotate-2 bg-sunny">🔒 Team only</span>
+          <h1 className="text-4xl font-bold leading-tight sm:text-5xl">The growth control room.</h1>
+          <p className="text-ink-soft">Live sign-ups, the funnel, which colleges are spreading it, the AI copilot and the fraud queue. Everything here is real data.</p>
+          <div className="flex flex-wrap gap-2 text-sm">
+            {[
+              ["📈", "Live funnel", "bg-mint/60"],
+              ["🧠", "AI copilot", "bg-lilac/60"],
+              ["🕸️", "Referral graph", "bg-pink/60"],
+              ["🛡️", "Fraud queue", "bg-paper"],
+            ].map(([e, t, c]) => (
+              <span key={t} className={`rounded-full border-2 border-ink px-3 py-1 font-semibold ${c}`}>
+                {e} {t}
+              </span>
+            ))}
+          </div>
+        </div>
+        <form
+          className="card-pop relative flex flex-col gap-3 p-7"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const r = await post<{ ok: boolean; error?: string }>("/api/admin/login", { key });
+            if (r.ok) load();
+            else setNote(r.error ?? "Wrong key");
+          }}
+        >
+          <span className="absolute -right-4 -top-5 rotate-12 text-4xl" aria-hidden>
+            🗝️
+          </span>
+          <h2 className="text-2xl font-bold">Admin login</h2>
+          <p className="text-sm text-ink-soft">Enter the ADMIN_KEY set on this deployment.</p>
+          {note && <div className="rounded-xl border-2 border-red-700 bg-red-50 px-3 py-2 text-sm text-red-800">{note}</div>}
+          <label className="label" htmlFor="admin-key">
+            Admin key
+          </label>
+          <input id="admin-key" className="input" type="password" autoComplete="current-password" placeholder="••••••••••••" value={key} onChange={(e) => setKey(e.target.value)} />
+          <button className="btn-primary py-3 text-base">Open dashboard →</button>
+        </form>
+      </div>
     );
   if (!d) return <div className="p-10 text-center text-ink-soft">Loading dashboard…</div>;
   const k = d.kpis;

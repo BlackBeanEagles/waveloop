@@ -18,7 +18,7 @@ export default function GroupLinks({ base, college }: { base: string; college: s
   ].join("\n\n");
 
   return (
-    <div className="card flex flex-col gap-3">
+    <div className="card-pop flex flex-col gap-3">
       <h2 className="font-bold">Make a tracked link for each group</h2>
       <div className="flex flex-wrap gap-1">
         {(Object.keys(LANGS) as Lang[]).map((l) => (

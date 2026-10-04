@@ -32,7 +32,7 @@ export default function Submit() {
 
   return (
     <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 lg:grid-cols-2">
-      <form onSubmit={submit} className="card flex flex-col gap-3 self-start">
+      <form onSubmit={submit} className="card-pop flex flex-col gap-3 self-start">
         <div className="pill w-fit bg-brand/10 text-brand">After the workshop</div>
         <h1 className="text-2xl font-bold">Submit your project for an AI review</h1>
         <p className="text-sm text-ink-soft">You get a rubric score, specific feedback and a shareable certificate. Your certificate post on LinkedIn is the next campaign&apos;s best ad.</p>
@@ -51,7 +51,7 @@ export default function Submit() {
 
       <div>
         {!res ? (
-          <div className="card text-sm text-ink-soft">
+          <div className="card-pop text-sm text-ink-soft">
             <h2 className="mb-3 font-bold text-ink">Rubric</h2>
             <ul className="space-y-2">
               {RUBRIC.map((r) => (
@@ -65,7 +65,7 @@ export default function Submit() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <div className="card">
+            <div className="card-pop">
               <div className="flex items-baseline justify-between">
                 <h2 className="font-bold">Your score</h2>
                 <span className="pill bg-sand text-ink-soft">graded by {res.grade.graded_by}</span>
@@ -93,7 +93,7 @@ export default function Submit() {
                 })}
               </ul>
             </div>
-            <div className="card grid gap-4 text-sm sm:grid-cols-2">
+            <div className="card-pop grid gap-4 text-sm sm:grid-cols-2">
               <div>
                 <h3 className="mb-1 font-bold text-green-700">Strengths</h3>
                 <ul className="list-disc space-y-1 pl-4">{res.grade.strengths.map((s) => <li key={s}>{s}</li>)}</ul>

@@ -67,7 +67,7 @@ export default function Help() {
   const a = res?.answer;
   return (
     <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 lg:grid-cols-2">
-      <form onSubmit={ask} className="card flex flex-col gap-3 self-start">
+      <form onSubmit={ask} className="card-pop flex flex-col gap-3 self-start">
         <div className="pill w-fit bg-red-100 text-red-700">
           <span className="h-2 w-2 animate-pulse rounded-full bg-red-600" /> Live workshop help desk
         </div>
@@ -97,7 +97,7 @@ export default function Help() {
 
       <div>
         {!a ? (
-          <div className="card text-sm text-ink-soft">
+          <div className="card-pop text-sm text-ink-soft">
             <h2 className="mb-2 font-bold text-ink">How it works</h2>
             <ol className="list-decimal space-y-1 pl-5">
               <li>AI reads your error, your workshop step and your registered project idea.</li>
@@ -106,7 +106,7 @@ export default function Help() {
             </ol>
           </div>
         ) : (
-          <div className="card flex flex-col gap-4">
+          <div className="card-pop flex flex-col gap-4">
             <div className="flex items-start justify-between gap-2">
               <h2 className="text-lg font-bold">{a.diagnosis}</h2>
               <span className={`pill shrink-0 ${a.confidence === "high" ? "bg-green-100 text-green-800" : a.confidence === "medium" ? "bg-amber-100 text-amber-900" : "bg-sand text-ink-soft"}`}>

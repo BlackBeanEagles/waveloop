@@ -36,27 +36,28 @@ export default function Leaderboard() {
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">College Championship</h1>
-          <p className="text-ink-soft">The college with the most verified sign-ups gets a dedicated NxtWave campus session. Updates live.</p>
+          <span className="sticker -rotate-2 bg-sunny text-xs uppercase tracking-wider">🏆 Live championship</span>
+          <h1 className="mt-3 text-4xl font-bold sm:text-5xl">Which college brings the most?</h1>
+          <p className="mt-2 max-w-2xl text-ink-soft">The college with the most verified sign-ups gets a dedicated NxtWave campus session. Updates live.</p>
         </div>
-        <div className="text-right text-sm text-ink-soft">
+        <div className="sticker bg-paper text-xs">
           <span className="mr-1 inline-block h-2 w-2 animate-pulse rounded-full bg-green-500" />
           live · {updated ? updated.toLocaleTimeString() : "loading"}
         </div>
       </div>
       {b && (
-        <div className="card mb-6">
+        <div className="card-pop mb-6 bg-sunny/40">
           <div className="flex items-baseline justify-between">
             <span className="text-4xl font-bold tabular-nums">{b.total}</span>
             <span className="text-ink-soft">of {b.target} verified registrations</span>
           </div>
-          <div className="mt-3 h-3 overflow-hidden rounded-full bg-sand">
-            <div className="h-full rounded-full bg-gradient-to-r from-brand to-brand-dark transition-all" style={{ width: `${Math.min(100, (b.total / b.target) * 100)}%` }} />
+          <div className="mt-3 h-4 overflow-hidden rounded-full border-2 border-ink bg-paper">
+            <div className="h-full bg-brand bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.25)_0_8px,transparent_8px_16px)] transition-all" style={{ width: `${Math.min(100, (b.total / b.target) * 100)}%` }} />
           </div>
         </div>
       )}
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div className="card">
+        <div className="card-pop">
           <h2 className="mb-4 font-bold">Colleges</h2>
           <ol className="space-y-3">
             {b?.colleges.map((c, i) => (
@@ -76,7 +77,7 @@ export default function Leaderboard() {
             {b && b.colleges.length === 0 && <p className="text-sm text-ink-soft">No registrations yet. Be the first!</p>}
           </ol>
         </div>
-        <div className="card">
+        <div className="card-pop">
           <h2 className="mb-4 font-bold">Top referrers</h2>
           <ol className="divide-y divide-line">
             {b?.people.map((p, i) => (

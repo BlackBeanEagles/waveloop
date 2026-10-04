@@ -12,7 +12,7 @@ export default function ShareKit(p: Props) {
   const linkedInText = `I just signed up for a free live workshop where I'll build and deploy my first AI project in 60 minutes. Final-year folks, join me: ${p.link}`;
 
   return (
-    <div className="card flex flex-col gap-4 self-start">
+    <div className="card-pop flex flex-col gap-4 self-start">
       <h2 className="text-lg font-bold">Your share kit</h2>
       {!p.verified && (
         <div className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">Verify your number first, or your link won&apos;t count referrals.</div>

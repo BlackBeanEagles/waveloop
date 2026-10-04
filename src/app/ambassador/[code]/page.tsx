@@ -43,7 +43,7 @@ export default async function AmbassadorPortal({ params }: { params: Promise<{ c
           [Number(stats?.verified ?? 0), "verified"],
           [`#${rank.length + 1}`, "ambassador rank"],
         ].map(([n, l]) => (
-          <div key={String(l)} className="card text-center">
+          <div key={String(l)} className="card-pop text-center">
             <div className="text-3xl font-bold text-brand">{n}</div>
             <div className="text-xs text-ink-soft">{l}</div>
           </div>
@@ -51,7 +51,7 @@ export default async function AmbassadorPortal({ params }: { params: Promise<{ c
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <GroupLinks base={`${siteUrl()}/a/${a.code}`} college={String(a.college)} />
-        <div className="card">
+        <div className="card-pop">
           <h2 className="mb-3 font-bold">Clicks by group</h2>
           {groups.length === 0 ? (
             <p className="text-sm text-ink-soft">No clicks yet. Post your first group link!</p>

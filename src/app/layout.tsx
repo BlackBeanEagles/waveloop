@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Space_Grotesk, Public_Sans, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, Public_Sans, Geist_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 import { Glow } from "@/components/Art";
 import ChatWidget from "@/components/ChatWidget";
 
 const display = Space_Grotesk({ variable: "--font-display", subsets: ["latin"], weight: ["500", "700"] });
 const body = Public_Sans({ variable: "--font-body", subsets: ["latin"], weight: ["400", "600", "700"] });
+const hand = Caveat({ variable: "--font-hand", subsets: ["latin"], weight: ["600", "700"] });
 const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -27,9 +28,9 @@ const TEAM = [
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${hand.variable} ${mono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <nav className="sticky top-0 z-50 border-b border-white/10 bg-ink/95 text-white backdrop-blur">
+        <nav className="sticky top-0 z-50 border-b-2 border-ink bg-ink text-white">
           <div className="no-scrollbar mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-4 py-2.5 text-sm">
             <Link href="/" className="mr-4 flex shrink-0 items-center gap-2 font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
               <svg aria-hidden viewBox="0 0 24 24" className="h-6 w-6">
@@ -42,14 +43,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </span>
             </Link>
             {STUDENT.map((t) => (
-              <Link key={t.href} href={t.href} className="shrink-0 rounded-lg px-2.5 py-1 text-white/75 hover:bg-white/10 hover:text-white">
+              <Link key={t.href} href={t.href} className="shrink-0 rounded-full px-3 py-1 font-semibold text-white/80 transition hover:bg-sunny hover:text-ink">
                 {t.label}
               </Link>
             ))}
             <span className="mx-2 h-5 w-px shrink-0 bg-white/20" />
             <span className="mr-1 shrink-0 text-[11px] uppercase tracking-widest text-white/40">Team</span>
             {TEAM.map((t) => (
-              <Link key={t.href} href={t.href} className="shrink-0 rounded-lg px-2.5 py-1 text-white/75 hover:bg-white/10 hover:text-white">
+              <Link key={t.href} href={t.href} className="shrink-0 rounded-full px-3 py-1 font-semibold text-white/80 transition hover:bg-sunny hover:text-ink">
                 {t.label}
               </Link>
             ))}

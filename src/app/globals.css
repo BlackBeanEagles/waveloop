@@ -1,41 +1,70 @@
 @import "tailwindcss";
 
-/* Same palette as the pitch deck: navy ink, warm cream, orange accent, blue second accent. */
+/* Campus palette: navy ink, cream paper, orange brand, plus sticker colours (yellow, mint, pink, lilac). */
 @theme inline {
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
+  --font-hand: var(--font-hand);
   --font-mono: var(--font-geist-mono);
   --color-ink: #13233d;
   --color-ink-soft: #3e4a5c;
   --color-brand: #b4501f;
   --color-brand-dark: #8e3c14;
   --color-sun: #f08a4b;
+  --color-sunny: #ffd84d;
+  --color-mint: #a6ebcf;
+  --color-pink: #ffb3cf;
+  --color-lilac: #cfc2ff;
   --color-sky: #3b6fd8;
   --color-cream: #f6f4ef;
   --color-sand: #e9e5dc;
   --color-paper: #fffdf9;
   --color-line: #e2ddd2;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-wiggle: wiggle 3s ease-in-out infinite;
+  --animate-float: float 5s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee, .animate-wiggle, .animate-float { animation: none; }
 }
 
 body {
-  background: #f6f4ef;
+  background-color: #f6f4ef;
+  /* notebook dot grid */
+  background-image: radial-gradient(rgba(19, 35, 61, 0.13) 1.1px, transparent 1.1px);
+  background-size: 22px 22px;
   color: #13233d;
   font-family: var(--font-body), system-ui, sans-serif;
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3 {
   font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
   letter-spacing: -0.01em;
 }
 
-::selection {
-  background: #f08a4b55;
-}
+::selection { background: #ffd84d; }
 
+/* Calm card (dashboard and staff pages) */
 @utility card {
   @apply rounded-2xl border border-line bg-paper p-5 shadow-[0_10px_28px_rgba(19,35,61,0.06)];
+}
+
+/* Sticker card (student pages): thick outline, hard offset shadow */
+@utility card-pop {
+  @apply rounded-2xl border-2 border-ink bg-paper p-5 shadow-[5px_5px_0_0_#13233d];
 }
 
 @utility btn {
@@ -43,23 +72,23 @@ h3 {
 }
 
 @utility btn-primary {
-  @apply btn bg-brand text-white shadow-[0_6px_16px_rgba(180,80,31,0.25)] hover:bg-brand-dark;
+  @apply btn border-2 border-ink bg-brand text-white shadow-[3px_3px_0_0_#13233d] hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_0_#13233d] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_0_#13233d];
 }
 
 @utility btn-ghost {
-  @apply btn border border-line bg-paper text-ink hover:bg-sand;
+  @apply btn border-2 border-ink bg-paper text-ink shadow-[3px_3px_0_0_#13233d] hover:-translate-x-px hover:-translate-y-px hover:bg-sunny/60 hover:shadow-[4px_4px_0_0_#13233d] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_0_#13233d];
 }
 
 @utility btn-wa {
-  @apply btn bg-[#157a42] text-white hover:bg-[#106336];
+  @apply btn border-2 border-ink bg-[#157a42] text-white shadow-[3px_3px_0_0_#13233d] hover:-translate-x-px hover:-translate-y-px hover:bg-[#106336] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_0_#13233d];
 }
 
 @utility input {
-  @apply w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none placeholder:text-[#8a8f99] focus:border-brand focus:ring-2 focus:ring-brand/20;
+  @apply w-full rounded-xl border-2 border-ink/80 bg-paper px-3 py-2.5 text-sm text-ink outline-none placeholder:text-[#7d8591] focus:border-brand focus:shadow-[3px_3px_0_0_#ffd84d];
 }
 
 @utility label {
-  @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft;
+  @apply mb-1 block text-xs font-bold uppercase tracking-wide text-ink-soft;
 }
 
 @utility pill {
@@ -67,12 +96,15 @@ h3 {
 }
 
 @utility eyebrow {
-  @apply text-xs font-semibold uppercase tracking-[0.2em] text-brand;
+  @apply text-xs font-bold uppercase tracking-[0.2em] text-brand;
+}
+
+/* A badge stuck on the page like a laptop sticker */
+@utility sticker {
+  @apply inline-flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-1 text-sm font-bold text-ink shadow-[3px_3px_0_0_#13233d];
 }
 
 @utility no-scrollbar {
   scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  &::-webkit-scrollbar { display: none; }
 }

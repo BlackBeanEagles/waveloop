@@ -77,10 +77,10 @@ export default function ChatWidget() {
         <div
           role="dialog"
           aria-label="Workshop assistant chat"
-          className="fixed bottom-24 right-4 z-50 flex h-[34rem] max-h-[75vh] w-[23rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-3xl border border-line bg-cream shadow-[0_24px_60px_rgba(19,35,61,0.3)]"
+          className="fixed bottom-24 right-4 z-50 flex h-[34rem] max-h-[75vh] w-[23rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-3xl border-2 border-ink bg-cream shadow-[6px_6px_0_0_#13233d]"
         >
           <div className="flex items-center gap-3 bg-ink px-4 py-3 text-white">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-brand text-sm font-bold">NW</div>
+            <div className="grid h-9 w-9 place-items-center rounded-full border-2 border-white/80 bg-sunny text-lg" aria-hidden>🤖</div>
             <div className="flex-1">
               <div className="text-sm font-semibold">Workshop assistant</div>
               <div className="text-xs text-white/70">{typing ? "typing…" : "Register, get an AI project idea, ask anything"}</div>
@@ -104,7 +104,7 @@ export default function ChatWidget() {
           </div>
           <div className="flex flex-wrap gap-1 border-t border-line bg-paper/60 px-2 pt-2">
             {QUICK.map(([label, value]) => (
-              <button key={label} onClick={() => send(value)} className="rounded-full border border-line bg-paper px-2.5 py-1 text-xs hover:bg-sand">
+              <button key={label} onClick={() => send(value)} className="rounded-full border-2 border-ink/25 bg-paper px-2.5 py-1 text-xs font-semibold hover:border-ink hover:bg-sunny">
                 {label}
               </button>
             ))}
@@ -126,7 +126,7 @@ export default function ChatWidget() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Close chat" : "Open chat assistant"}
-        className="fixed bottom-5 right-4 z-50 flex items-center gap-2 rounded-full bg-brand px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(180,80,31,0.4)] hover:bg-brand-dark"
+        className="fixed bottom-5 right-4 z-50 flex items-center gap-2 rounded-full border-2 border-ink bg-brand px-4 py-3 text-sm font-bold text-white shadow-[4px_4px_0_0_#13233d] transition hover:-translate-y-0.5 hover:bg-brand-dark"
       >
         <svg aria-hidden viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" />
