@@ -5,6 +5,7 @@
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
   --font-hand: var(--font-hand);
+  --font-comic: var(--font-comic);
   --font-mono: var(--font-geist-mono);
   --color-ink: #13233d;
   --color-ink-soft: #3e4a5c;
@@ -42,17 +43,23 @@
 }
 
 body {
-  background-color: #f6f4ef;
-  /* notebook dot grid */
-  background-image: radial-gradient(rgba(19, 35, 61, 0.13) 1.1px, transparent 1.1px);
-  background-size: 22px 22px;
+  background-color: #f7f1e3;
+  /* printed-comic paper: two offset halftone layers */
+  background-image:
+    radial-gradient(rgba(240, 138, 75, 0.16) 1.6px, transparent 1.8px),
+    radial-gradient(rgba(19, 35, 61, 0.08) 1.2px, transparent 1.4px);
+  background-size: 18px 18px, 18px 18px;
+  background-position: 0 0, 9px 9px;
   color: #13233d;
   font-family: var(--font-body), system-ui, sans-serif;
 }
 
-h1, h2, h3 {
-  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
-  letter-spacing: -0.01em;
+/* In the base layer, so utilities like comic-title can override it */
+@layer base {
+  h1, h2, h3 {
+    font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
 }
 
 ::selection { background: #ffd84d; }
@@ -62,9 +69,25 @@ h1, h2, h3 {
   @apply rounded-2xl border border-line bg-paper p-5 shadow-[0_10px_28px_rgba(19,35,61,0.06)];
 }
 
-/* Sticker card (student pages): thick outline, hard offset shadow */
+/* Comic panel (student pages): inked border, square-ish corners, hard offset shadow */
 @utility card-pop {
-  @apply rounded-2xl border-2 border-ink bg-paper p-5 shadow-[5px_5px_0_0_#13233d];
+  @apply rounded-[6px] border-[3px] border-ink bg-paper p-5 shadow-[6px_6px_0_0_#13233d];
+}
+
+/* Halftone fill for a panel, like newsprint shading */
+@utility halftone {
+  background-image: radial-gradient(rgba(19, 35, 61, 0.22) 1.3px, transparent 1.5px);
+  background-size: 9px 9px;
+}
+
+/* Hand-lettered comic headline with a printed drop shadow */
+@utility comic-title {
+  font-family: var(--font-comic), var(--font-display), system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  color: #13233d;
+  text-shadow: 3px 3px 0 #ffd84d, 5px 5px 0 #13233d;
 }
 
 @utility btn {
@@ -72,19 +95,19 @@ h1, h2, h3 {
 }
 
 @utility btn-primary {
-  @apply btn border-2 border-ink bg-brand text-white shadow-[3px_3px_0_0_#13233d] hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_0_#13233d] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_0_#13233d];
+  @apply btn rounded-[6px] border-[3px] border-ink bg-brand font-[family-name:var(--font-comic)] text-lg tracking-wider text-white shadow-[4px_4px_0_0_#13233d] hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_0_#13233d] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_0_#13233d];
 }
 
 @utility btn-ghost {
-  @apply btn border-2 border-ink bg-paper text-ink shadow-[3px_3px_0_0_#13233d] hover:-translate-x-px hover:-translate-y-px hover:bg-sunny/60 hover:shadow-[4px_4px_0_0_#13233d] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_0_#13233d];
+  @apply btn rounded-[6px] border-[3px] border-ink bg-paper text-ink shadow-[3px_3px_0_0_#13233d] hover:-translate-x-px hover:-translate-y-px hover:bg-sunny/60 hover:shadow-[4px_4px_0_0_#13233d] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_0_#13233d];
 }
 
 @utility btn-wa {
-  @apply btn border-2 border-ink bg-[#157a42] text-white shadow-[3px_3px_0_0_#13233d] hover:-translate-x-px hover:-translate-y-px hover:bg-[#106336] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_0_#13233d];
+  @apply btn rounded-[6px] border-[3px] border-ink bg-[#157a42] text-white shadow-[3px_3px_0_0_#13233d] hover:-translate-x-px hover:-translate-y-px hover:bg-[#106336] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_0_#13233d];
 }
 
 @utility input {
-  @apply w-full rounded-xl border-2 border-ink/80 bg-paper px-3 py-2.5 text-sm text-ink outline-none placeholder:text-[#7d8591] focus:border-brand focus:shadow-[3px_3px_0_0_#ffd84d];
+  @apply w-full rounded-[6px] border-[3px] border-ink bg-paper px-3 py-2.5 text-sm text-ink outline-none placeholder:text-[#7d8591] focus:border-brand focus:shadow-[3px_3px_0_0_#ffd84d];
 }
 
 @utility label {

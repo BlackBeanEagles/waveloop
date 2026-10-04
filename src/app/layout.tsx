@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Space_Grotesk, Public_Sans, Geist_Mono, Caveat } from "next/font/google";
+import { Space_Grotesk, Public_Sans, Geist_Mono, Caveat, Bangers } from "next/font/google";
 import "./globals.css";
-import { Glow } from "@/components/Art";
 import ChatWidget from "@/components/ChatWidget";
 
 const display = Space_Grotesk({ variable: "--font-display", subsets: ["latin"], weight: ["500", "700"] });
 const body = Public_Sans({ variable: "--font-body", subsets: ["latin"], weight: ["400", "600", "700"] });
+const comic = Bangers({ variable: "--font-comic", subsets: ["latin"], weight: "400" });
 const hand = Caveat({ variable: "--font-hand", subsets: ["latin"], weight: ["600", "700"] });
 const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
@@ -28,7 +28,7 @@ const TEAM = [
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${hand.variable} ${mono.variable} h-full antialiased`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${hand.variable} ${comic.variable} ${mono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <nav className="sticky top-0 z-50 border-b-2 border-ink bg-ink text-white">
           <div className="no-scrollbar mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-4 py-2.5 text-sm">
@@ -38,8 +38,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <path d="M7 13.5a5 5 0 1 0 5-5" fill="none" stroke="#F6F4EF" strokeWidth="2.2" strokeLinecap="round" />
                 <path d="M10.5 6.5 12.5 8.5 10.5 10.5" fill="none" stroke="#F6F4EF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span>
-                Wave<span className="text-sun">Loop</span>
+              <span className="font-[family-name:var(--font-comic)] text-2xl font-normal tracking-wider">
+                Wave<span className="text-sunny">Loop!</span>
               </span>
             </Link>
             {STUDENT.map((t) => (
@@ -57,8 +57,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </div>
         </nav>
         <main className="relative isolate flex-1 overflow-x-clip">
-          <Glow className="-right-48 -top-56 -z-10 h-[560px] w-[560px]" opacity={0.3} />
-          <Glow color="blue" className="-left-64 top-[45%] -z-10 h-[560px] w-[560px]" opacity={0.14} />
           {children}
         </main>
         <ChatWidget />

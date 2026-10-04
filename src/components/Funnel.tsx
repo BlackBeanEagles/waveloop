@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { BRANCHES, YEARS, WORKSHOP_TITLE, TARGET } from "@/lib/config";
 import { LANGS, t, type Lang } from "@/lib/i18n";
 import { post, visitorId } from "@/lib/client";
-import { ReferralNetwork } from "@/components/Art";
+import { Bubble, Burst, Caption, ReferralNetwork, SpeedLines } from "@/components/Art";
 
 type Idea = { title: string; pitch: string; why_it_fits_you: string; steps: string[]; tools: string[]; resume_line: string; source: string };
 
@@ -157,7 +157,29 @@ export default function Funnel(p: Props) {
         <div className="relative grid gap-10 lg:grid-cols-[1.1fr_1fr]">
           <section className="flex flex-col gap-6">
             {p.inviter && <div className="sticker w-fit -rotate-1 bg-pink">🙌 {tr("invited", { name: p.inviter.name, college: p.inviter.college })}</div>}
-            <div className="flex flex-wrap gap-3">
+
+            <div className="card-pop relative -rotate-[0.6deg] overflow-hidden bg-[#fff6d6] p-6 sm:p-8">
+              <SpeedLines className="-right-24 -top-24 h-[460px] w-[460px] rotate-90" />
+              <Burst text="FREE!" className="absolute right-3 top-3 h-24 w-24 rotate-12 sm:right-5 sm:top-5 sm:h-28 sm:w-28" />
+              <Caption className="relative">{lang === "en" ? "Meanwhile, in placement season…" : tr("badge")}</Caption>
+              <h1 className={`comic-title relative mt-6 pr-20 text-5xl transition-opacity sm:pr-28 sm:text-6xl ${copy ? "opacity-100" : "opacity-0"}`}>
+                {copy?.headline ?? tr("hero_h")}
+              </h1>
+              <p className={`relative mt-5 max-w-xl text-lg font-medium text-ink-soft transition-opacity ${copy ? "opacity-100" : "opacity-0"}`}>{copy?.sub ?? " "}</p>
+              {lang === "en" && (
+                <div className="relative mt-6 flex flex-col items-start">
+                  <Bubble>my resume has zero AI projects 😰 and placements start next month…</Bubble>
+                  <div className="ml-2 mt-5 flex items-center gap-2">
+                    <span className="grid h-11 w-11 place-items-center rounded-full border-[3px] border-ink bg-paper text-2xl" aria-hidden>
+                      🧑‍🎓
+                    </span>
+                    <span className="font-[family-name:var(--font-hand)] text-xl text-ink-soft">every final-year, ever</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
               {tr("badge")
                 .split(" · ")
                 .map((part, i) => (
@@ -165,30 +187,17 @@ export default function Funnel(p: Props) {
                     {part}
                   </span>
                 ))}
-            </div>
-            <div className="relative">
-              <h1 className={`text-4xl font-bold leading-[1.02] tracking-tight transition-opacity sm:text-6xl ${copy ? "opacity-100" : "opacity-0"}`}>
-                {copy?.headline ?? tr("hero_h")}
-              </h1>
-              <svg aria-hidden viewBox="0 0 300 20" preserveAspectRatio="none" className="mt-1 h-4 w-56 text-sunny sm:w-72">
-                <path d="M3 14 C 60 3, 120 3, 170 11 S 260 17, 297 6" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
-              </svg>
-            </div>
-            <p className={`max-w-xl text-lg text-ink-soft transition-opacity ${copy ? "opacity-100" : "opacity-0"}`}>{copy?.sub ?? " "}</p>
-
-            <div className="flex flex-wrap items-center gap-4">
               <p className="sticker bg-paper">
                 <span aria-hidden>📅</span>
                 {workshopLabel}
               </p>
-              {lang === "en" && <p className="rotate-[-4deg] font-[family-name:var(--font-hand)] text-2xl text-brand">sign-up takes 30 seconds →</p>}
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="card-pop bg-sunny/40">
-                <p className="eyebrow text-ink">Seats filling up</p>
+            <div className="mt-4 grid gap-7 sm:grid-cols-2">
+              <div className="card-pop halftone relative -rotate-1 bg-sunny/60">
+                <Caption className="-mt-9 mb-2 bg-paper text-sm">Seats filling up!</Caption>
                 <div className="mt-1 flex items-baseline gap-2">
-                  <span className="font-[family-name:var(--font-display)] text-5xl font-bold tabular-nums">{p.registered}</span>
+                  <span className="font-[family-name:var(--font-comic)] text-6xl tabular-nums">{p.registered}</span>
                   <span className="text-sm font-semibold text-ink-soft">/ {TARGET}</span>
                 </div>
                 <div className="mt-3 h-4 overflow-hidden rounded-full border-2 border-ink bg-paper">
@@ -224,15 +233,16 @@ export default function Funnel(p: Props) {
           </section>
 
           <div className="flex flex-col gap-6 self-start">
-            <section className="card-pop relative p-6">
-              <span className="sticker absolute -right-3 -top-4 rotate-6 bg-sunny text-xs">✨ free AI idea</span>
+            <section className="card-pop relative rotate-[0.4deg] p-6 pt-8">
+              <Caption className="absolute -left-2 -top-5 -rotate-2 text-sm">{lang === "en" ? "Chapter 1: your project" : "✨ AI"}</Caption>
+              <Burst text="AI!" className="absolute -right-4 -top-6 h-16 w-16 rotate-12" fill="#A6EBCF" />
               <Steps stage={stage} labels={[tr("step_idea"), tr("step_register"), tr("step_verify")]} />
               {error && <div className="mb-4 rounded-xl border-2 border-red-700 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</div>}
 
               {stage === "idea" && (
                 <form onSubmit={getIdea} className="flex flex-col gap-4" onFocus={startForm}>
                   <div>
-                    <h2 className="text-2xl font-bold">{tr("idea_title")}</h2>
+                    <h2 className="comic-title text-4xl [text-shadow:2px_2px_0_#ffd84d]">{tr("idea_title")}</h2>
                     <p className="text-sm text-ink-soft">{tr("idea_sub")}</p>
                   </div>
                   <div>
@@ -340,12 +350,12 @@ export default function Funnel(p: Props) {
               <p className="mt-4 text-center text-xs text-ink-soft/70">{WORKSHOP_TITLE}</p>
             </section>
 
-            <div className="card-pop hidden bg-lilac/40 lg:block">
-              <div className="flex items-center gap-4">
+            <div className="card-pop relative hidden -rotate-[0.5deg] bg-lilac/50 lg:block">
+              <Caption className="absolute -top-5 left-4 bg-paper text-sm">The plot twist</Caption>
+              <div className="flex items-center gap-4 pt-2">
                 <ReferralNetwork className="h-32 w-40 shrink-0" />
                 <div>
-                  <p className="eyebrow text-ink">How it spreads</p>
-                  <p className="mt-1 font-[family-name:var(--font-display)] text-lg font-bold leading-snug">You → 4 friends → their friends.</p>
+                                    <p className="mt-1 font-[family-name:var(--font-display)] text-lg font-bold leading-snug">You → 4 friends → their friends.</p>
                   <p className="mt-1 text-sm text-ink-soft">Every sign-up gets a link. Bring your squad and your college climbs the leaderboard.</p>
                 </div>
               </div>
@@ -401,8 +411,8 @@ const INTERESTS: [string, string][] = [
 // Before/after: what one workshop adds to a final-year resume.
 function ResumeWidget() {
   return (
-    <div className="card-pop relative rotate-1 bg-mint/40">
-      <p className="eyebrow text-ink">Resume glow-up</p>
+    <div className="card-pop relative rotate-1 bg-mint/50">
+      <Caption className="-mt-9 mb-2 bg-paper text-sm">Resume glow-up</Caption>
       <div className="mt-2 rounded-xl border-2 border-ink bg-paper p-3 text-xs">
         <p className="font-bold uppercase tracking-wide text-ink-soft">Projects</p>
         <p className="mt-1.5 text-ink-soft line-through decoration-2">Library management system (2nd year)</p>
