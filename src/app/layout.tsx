@@ -22,7 +22,6 @@ const STUDENT = [
 ];
 const TEAM = [
   { href: "/ambassador", label: "Ambassadors" },
-  { href: "/mentor", label: "Mentors" },
   { href: "/admin", label: "Growth dashboard" },
 ];
 
