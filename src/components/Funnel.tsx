@@ -155,14 +155,14 @@ export default function Funnel(p: Props) {
           ))}
         </div>
         <div className="relative grid gap-10 lg:grid-cols-[1.1fr_1fr]">
-          <section className="flex flex-col gap-6">
+          <section className="flex flex-col gap-6 lg:col-start-1 lg:row-start-1">
             {p.inviter && <div className="sticker w-fit -rotate-1 bg-pink">🙌 {tr("invited", { name: p.inviter.name, college: p.inviter.college })}</div>}
 
-            <div className="card-pop relative -rotate-[0.6deg] overflow-hidden bg-[#fff6d6] p-6 sm:p-8">
+            <div className="card-pop relative -rotate-[0.6deg] overflow-hidden bg-[#fff6d6] p-5 sm:p-8">
               <SpeedLines className="-right-24 -top-24 h-[460px] w-[460px] rotate-90" />
-              <Burst text="FREE!" className="absolute right-3 top-3 h-24 w-24 rotate-12 sm:right-5 sm:top-5 sm:h-28 sm:w-28" />
-              <Caption className="relative">{lang === "en" ? "Meanwhile, in placement season…" : tr("badge")}</Caption>
-              <h1 className={`comic-title relative mt-6 pr-20 text-5xl transition-opacity sm:pr-28 sm:text-6xl ${copy ? "opacity-100" : "opacity-0"}`}>
+              <Burst text="FREE!" className="absolute right-1 top-1 h-[4.5rem] w-[4.5rem] rotate-12 sm:right-5 sm:top-5 sm:h-28 sm:w-28" />
+              <Caption className="relative mr-14 text-sm sm:mr-0 sm:text-base">{lang === "en" ? "Meanwhile, in placement season…" : tr("badge")}</Caption>
+              <h1 className={`comic-title relative mt-6 text-[2.6rem] transition-opacity sm:pr-28 sm:text-6xl ${copy ? "opacity-100" : "opacity-0"}`}>
                 {copy?.headline ?? tr("hero_h")}
               </h1>
               <p className={`relative mt-5 max-w-xl text-lg font-medium text-ink-soft transition-opacity ${copy ? "opacity-100" : "opacity-0"}`}>{copy?.sub ?? " "}</p>
@@ -193,46 +193,9 @@ export default function Funnel(p: Props) {
               </p>
             </div>
 
-            <div className="mt-4 grid gap-7 sm:grid-cols-2">
-              <div className="card-pop halftone relative -rotate-1 bg-sunny/60">
-                <Caption className="-mt-9 mb-2 bg-paper text-sm">Seats filling up!</Caption>
-                <div className="mt-1 flex items-baseline gap-2">
-                  <span className="font-[family-name:var(--font-comic)] text-6xl tabular-nums">{p.registered}</span>
-                  <span className="text-sm font-semibold text-ink-soft">/ {TARGET}</span>
-                </div>
-                <div className="mt-3 h-4 overflow-hidden rounded-full border-2 border-ink bg-paper">
-                  <div
-                    className="h-full bg-brand bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.25)_0_8px,transparent_8px_16px)]"
-                    style={{ width: `${Math.max(pct, p.registered > 0 ? 3 : 0)}%` }}
-                  />
-                </div>
-                <p className="mt-2 text-xs font-semibold text-ink-soft">{tr("registered_count", { n: p.registered })}</p>
-                {p.topColleges.length > 0 && (
-                  <ul className="mt-3 space-y-1 text-xs">
-                    {p.topColleges.map((c, i) => (
-                      <li key={c.name} className="flex items-center gap-2">
-                        <span aria-hidden>{["🥇", "🥈", "🥉"][i]}</span>
-                        <span className="flex-1 truncate font-semibold">{c.name}</span>
-                        <span className="tabular-nums">{c.n}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <ResumeWidget />
-            </div>
-
-            <ul className="flex flex-wrap gap-2 text-sm">
-              {(["b1", "b2", "b3", "b4"] as const).map((k, i) => (
-                <li key={k} className={`flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-1 font-semibold ${["bg-paper", "bg-mint/50", "bg-lilac/50", "bg-pink/50"][i]}`}>
-                  <span aria-hidden>{["🚀", "💻", "🏅", "📄"][i]}</span>
-                  {tr(k)}
-                </li>
-              ))}
-            </ul>
           </section>
 
-          <div className="flex flex-col gap-6 self-start">
+          <div className="flex flex-col gap-6 self-start lg:col-start-2 lg:row-span-2 lg:row-start-1">
             <section className="card-pop relative rotate-[0.4deg] p-6 pt-8">
               <Caption className="absolute -left-2 -top-5 -rotate-2 text-sm">{lang === "en" ? "Chapter 1: your project" : "✨ AI"}</Caption>
               <Burst text="AI!" className="absolute -right-4 -top-6 h-16 w-16 rotate-12" fill="#A6EBCF" />
@@ -290,7 +253,7 @@ export default function Funnel(p: Props) {
                 </form>
               )}
 
-              {stage !== "idea" && idea && <IdeaCard idea={idea} compact={stage === "otp"} labels={{ your: tr("your_project"), ai: tr("ai_generated"), tpl: tr("template") }} />}
+              {stage !== "idea" && idea && <IdeaCard idea={idea} reveal={stage === "register"} compact={stage === "otp"} labels={{ your: tr("your_project"), ai: tr("ai_generated"), tpl: tr("template") }} />}
 
               {stage === "register" && (
                 <form onSubmit={register} className="mt-5 flex flex-col gap-3">
@@ -360,6 +323,45 @@ export default function Funnel(p: Props) {
                 </div>
               </div>
             </div>
+          </div>
+          <div className="flex flex-col gap-6 lg:col-start-1 lg:row-start-2">
+            <div className="mt-4 grid gap-9 sm:grid-cols-2 sm:gap-7">
+              <div className="card-pop halftone relative -rotate-1 bg-sunny/60">
+                <Caption className="-mt-9 mb-2 bg-paper text-sm">Seats filling up!</Caption>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <span className="font-[family-name:var(--font-comic)] text-6xl tabular-nums">{p.registered}</span>
+                  <span className="text-sm font-semibold text-ink-soft">/ {TARGET}</span>
+                </div>
+                <div className="mt-3 h-4 overflow-hidden rounded-full border-2 border-ink bg-paper">
+                  <div
+                    className="h-full bg-brand bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.25)_0_8px,transparent_8px_16px)]"
+                    style={{ width: `${Math.max(pct, p.registered > 0 ? 3 : 0)}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-xs font-semibold text-ink-soft">{tr("registered_count", { n: p.registered })}</p>
+                {p.topColleges.length > 0 && (
+                  <ul className="mt-3 space-y-1 text-xs">
+                    {p.topColleges.map((c, i) => (
+                      <li key={c.name} className="flex items-center gap-2">
+                        <span aria-hidden>{["🥇", "🥈", "🥉"][i]}</span>
+                        <span className="flex-1 truncate font-semibold">{c.name}</span>
+                        <span className="tabular-nums">{c.n}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <ResumeWidget />
+            </div>
+
+            <ul className="flex flex-wrap gap-2 text-sm">
+              {(["b1", "b2", "b3", "b4"] as const).map((k, i) => (
+                <li key={k} className={`flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-1 font-semibold ${["bg-paper", "bg-mint/50", "bg-lilac/50", "bg-pink/50"][i]}`}>
+                  <span aria-hidden>{["🚀", "💻", "🏅", "📄"][i]}</span>
+                  {tr(k)}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
@@ -440,21 +442,13 @@ function Steps({ stage, labels }: { stage: string; labels: string[] }) {
   );
 }
 
-export function IdeaCard({ idea, compact = false, labels }: { idea: Idea; compact?: boolean; labels?: { your: string; ai: string; tpl: string } }) {
+export function IdeaCard({ idea, compact = false, labels, reveal = false }: { idea: Idea; compact?: boolean; labels?: { your: string; ai: string; tpl: string }; reveal?: boolean }) {
   const l = labels ?? { your: "Your workshop project", ai: "AI-generated", tpl: "Template" };
   return (
-    <div className="relative overflow-hidden rounded-2xl border-2 border-ink bg-gradient-to-br from-ink to-[#24406b] p-5 text-white shadow-[4px_4px_0_0_#f08a4b]">
-      <svg aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56" viewBox="0 0 200 200">
-        <defs>
-          <radialGradient id="ideaGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#F08A4B" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#F08A4B" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-        <circle cx="100" cy="100" r="100" fill="url(#ideaGlow)" />
-        <circle cx="100" cy="100" r="46" fill="none" stroke="#F6F4EF" strokeOpacity="0.15" strokeWidth="2" />
-        <circle cx="100" cy="100" r="72" fill="none" stroke="#F6F4EF" strokeOpacity="0.1" strokeWidth="2" />
-      </svg>
+    <div className={`relative ${reveal ? "animate-pop-in" : ""}`}>
+    {reveal && <Burst text="KA-POW!" className="pointer-events-none absolute -right-4 -top-8 z-20 h-28 w-28 animate-kapow" />}
+    <div className="relative overflow-hidden rounded-[6px] border-[3px] border-ink bg-gradient-to-br from-ink to-[#24406b] p-5 text-white shadow-[5px_5px_0_0_#f08a4b]">
+      <div aria-hidden className="pointer-events-none absolute inset-0 [background-image:radial-gradient(rgba(255,216,77,0.35)_1.4px,transparent_1.6px)] [background-size:11px_11px]" />
       <div className="relative mb-1 flex items-center justify-between text-xs uppercase tracking-wide text-white/70">
         <span>{l.your}</span>
         <span>{idea.source === "template" ? l.tpl : l.ai}</span>
@@ -482,6 +476,7 @@ export function IdeaCard({ idea, compact = false, labels }: { idea: Idea; compac
           <p className="relative mt-3 rounded-xl bg-white/10 p-3 text-sm italic">📄 {idea.resume_line}</p>
         </>
       )}
+    </div>
     </div>
   );
 }

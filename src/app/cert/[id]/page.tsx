@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { one } from "@/lib/db";
 import { WORKSHOP_TITLE, siteUrl } from "@/lib/config";
+import { Burst, Caption, SpeedLines } from "@/components/Art";
 
 export const dynamic = "force-dynamic";
 
@@ -11,40 +12,58 @@ export default async function Certificate({ params }: { params: Promise<{ id: st
     [Number(id)],
   );
   if (!s) notFound();
-  const level = Number(s.total) >= 80 ? "with Distinction" : Number(s.total) >= 60 ? "with Merit" : "";
+  const total = Number(s.total);
+  const level = total >= 80 ? "with Distinction" : total >= 60 ? "with Merit" : "";
+  const badge = total >= 80 ? "LEGEND!" : total >= 60 ? "NAILED IT!" : "SHIPPED!";
   const url = `${siteUrl()}/cert/${s.id}`;
-  const shareText = `I built "${s.title}" in NxtWave's "${WORKSHOP_TITLE}" workshop and scored ${s.total}/100 on the AI review. Verify: ${url}`;
+  const shareText = `I built "${s.title}" in NxtWave's "${WORKSHOP_TITLE}" workshop and scored ${total}/100 on the AI review. Verify: ${url}`;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <div className="relative overflow-hidden rounded-3xl border-8 border-double border-brand-dark bg-paper p-10 text-center shadow-xl">
-        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-sun/30" />
-        <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-brand/10" />
-        <div className="relative">
-          <div className="text-sm font-semibold uppercase tracking-[0.3em] text-ink-soft">Certificate of Completion</div>
-          <p className="mt-6 text-ink-soft">This certifies that</p>
-          <h1 className="mt-2 text-4xl font-bold text-ink sm:text-5xl">{s.name}</h1>
-          <p className="mt-4 text-ink-soft">built and submitted</p>
-          <h2 className="mt-1 text-2xl font-bold text-brand">“{s.title}”</h2>
-          <p className="mt-4 text-ink-soft">
-            in the live workshop <b>{WORKSHOP_TITLE}</b> {level && <b className="text-ink">{level}</b>}
+      {/* Outer frame: a comic page border with a thin inner rule, like a printed certificate */}
+      <div className="card-pop relative overflow-hidden bg-[#fff6d6] p-3 sm:p-4">
+        <SpeedLines className="-right-28 -top-28 h-[520px] w-[520px] rotate-90" />
+        <Burst text={badge} className="absolute right-3 top-3 z-10 h-28 w-28 rotate-12 sm:right-6 sm:top-6 sm:h-36 sm:w-36" />
+        <div className="relative border-[3px] border-dashed border-ink/40 px-6 py-10 text-center sm:px-12">
+          <Caption className="mx-auto">Certificate of completion</Caption>
+          <p className="mt-8 font-[family-name:var(--font-hand)] text-2xl text-ink-soft">this is to certify that</p>
+          <h1 className="comic-title mt-2 text-5xl sm:text-7xl">{s.name}</h1>
+          <p className="mt-6 font-[family-name:var(--font-hand)] text-2xl text-ink-soft">built &amp; shipped</p>
+          <h2 className="comic-title mt-1 text-3xl text-brand [text-shadow:2px_2px_0_#13233d] sm:text-4xl">“{s.title}”</h2>
+          <p className="mx-auto mt-5 max-w-lg font-medium text-ink-soft">
+            live, in the workshop <b className="text-ink">{WORKSHOP_TITLE}</b>
+            {level && (
+              <>
+                {" "}
+                <span className="rounded border-2 border-ink bg-mint px-1.5 font-bold text-ink">{level}</span>
+              </>
+            )}
           </p>
-          <div className="mx-auto mt-8 flex max-w-md justify-between border-t border-line pt-4 text-xs text-ink-soft">
-            <span>AI review score: {s.total}/100</span>
-            <span>ID WL-{String(s.id).padStart(5, "0")}</span>
-            <span>{new Date(String(s.created_at)).toLocaleDateString("en-IN")}</span>
+          <div className="mx-auto mt-10 grid max-w-xl grid-cols-3 gap-3 text-xs font-semibold">
+            <div className="rounded-[6px] border-[3px] border-ink bg-paper p-2">
+              <div className="font-[family-name:var(--font-comic)] text-3xl text-brand">{total}/100</div>
+              AI review score
+            </div>
+            <div className="rounded-[6px] border-[3px] border-ink bg-paper p-2">
+              <div className="font-[family-name:var(--font-comic)] text-2xl leading-9">WL-{String(s.id).padStart(5, "0")}</div>
+              certificate ID
+            </div>
+            <div className="rounded-[6px] border-[3px] border-ink bg-paper p-2">
+              <div className="font-[family-name:var(--font-comic)] text-2xl leading-9">{new Date(String(s.created_at)).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div>
+              issued
+            </div>
           </div>
         </div>
       </div>
-      <div className="mt-6 flex flex-wrap justify-center gap-3">
-        <a className="btn-primary" href={`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer">
-          Share on LinkedIn
+      <div className="mt-8 flex flex-wrap justify-center gap-4">
+        <a className="btn-primary px-6" href={`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer">
+          Flex it on LinkedIn
         </a>
-        <a className="btn-wa" href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer">
+        <a className="btn-wa px-6" href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer">
           Share on WhatsApp
         </a>
       </div>
-      <p className="mt-4 text-center text-xs text-ink-soft/70">Each certificate links back here, so every share brings people into the next workshop.</p>
+      <p className="mt-4 text-center font-[family-name:var(--font-hand)] text-xl text-ink-soft">every share brings your batchmates into the next workshop ✌️</p>
     </div>
   );
 }

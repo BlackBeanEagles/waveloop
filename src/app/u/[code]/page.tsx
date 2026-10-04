@@ -5,6 +5,7 @@ import { campaignClock, fmtIST, referralCount, referralLink, rewardState, whatsa
 import { REWARDS } from "@/lib/config";
 import ShareKit from "@/components/ShareKit";
 import { IdeaCard } from "@/components/Funnel";
+import { Bubble, Burst, Caption, SpeedLines } from "@/components/Art";
 
 export const dynamic = "force-dynamic";
 
@@ -36,15 +37,24 @@ export default async function Me({ params, searchParams }: { params: Promise<{ c
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      {isNew && (
-        <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-4 text-green-900">
-          🎉 <b>You&apos;re in, {first}!</b> See you on {fmtIST(clock.workshop)}. We&apos;ll remind you on WhatsApp.
+      <div className={`card-pop relative mb-8 -rotate-[0.4deg] overflow-hidden p-6 sm:p-8 ${isNew ? "bg-[#fff6d6]" : "bg-paper"}`}>
+        <SpeedLines className="-right-24 -top-24 h-[420px] w-[420px] rotate-90" />
+        {isNew && <Burst text="YOU'RE IN!" className="absolute right-3 top-3 h-28 w-28 rotate-12 sm:right-6 sm:h-36 sm:w-36" />}
+        <Caption className="relative">{isNew ? "Chapter 2: the squad" : `${first}'s squad HQ`}</Caption>
+        <h1 className="comic-title relative mt-5 pr-28 text-5xl sm:pr-40 sm:text-6xl">{isNew ? `Welcome aboard, ${first}!` : `Hey ${first}, how's the squad?`}</h1>
+        <p className="relative mt-4 max-w-xl font-medium text-ink-soft">
+          📅 {fmtIST(clock.workshop)} IST · we&apos;ll remind you on WhatsApp. Now the fun part: bring your friends and unlock rewards.
+        </p>
+        <div className="relative mt-5">
+          <Bubble>{refs === 0 ? "1 friend = recording access. 3 = the prompt pack. Who's first? 👀" : `${refs} down! ${reward.next ? `${reward.toNext} more for: ${reward.next.label}` : "every reward unlocked 🏆"}`}</Bubble>
         </div>
-      )}
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="flex flex-col gap-6">
-          <div className="card-pop">
-            <h1 className="text-2xl font-bold">Bring your friends, unlock rewards</h1>
+          <div className="card-pop relative pt-7">
+            <Caption className="absolute -top-5 left-4 text-sm">Reward ladder</Caption>
+            <h2 className="comic-title text-3xl [text-shadow:2px_2px_0_#ffd84d]">Bring friends, level up</h2>
             <p className="mt-1 text-sm text-ink-soft">A referral counts once your friend verifies their number. {refs > 0 ? `Rank #${above.length + 1} right now.` : "Get your first referral to enter the leaderboard."}</p>
             <div className="mt-5 grid grid-cols-3 gap-3 text-center">
               <Stat n={refs} l="verified referrals" />
@@ -55,13 +65,13 @@ export default async function Me({ params, searchParams }: { params: Promise<{ c
               {REWARDS.map((r) => {
                 const done = refs >= r.refs;
                 return (
-                  <li key={r.refs} className={`flex items-center gap-3 rounded-xl border p-3 text-sm ${done ? "border-green-200 bg-green-50" : "border-line"}`}>
-                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${done ? "bg-green-600 text-white" : "bg-sand text-ink-soft"}`}>
+                  <li key={r.refs} className={`flex items-center gap-3 rounded-[6px] border-[3px] p-3 text-sm ${done ? "border-ink bg-mint" : "border-ink/20 bg-paper"}`}>
+                    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border-[3px] border-ink font-[family-name:var(--font-comic)] text-lg ${done ? "bg-sunny" : "bg-paper"}`}>
                       {done ? "✓" : r.refs}
                     </span>
                     <span className={done ? "font-semibold" : ""}>{r.label}</span>
                     {!done && reward.next?.refs === r.refs && (
-                      <div className="ml-auto h-2 w-24 overflow-hidden rounded-full bg-sand">
+                      <div className="ml-auto h-3 w-24 overflow-hidden rounded-full border-2 border-ink bg-paper">
                         <div className="h-full bg-brand" style={{ width: `${Math.round((refs / r.refs) * 100)}%` }} />
                       </div>
                     )}
@@ -87,8 +97,8 @@ export default async function Me({ params, searchParams }: { params: Promise<{ c
 
 function Stat({ n, l }: { n: number; l: string }) {
   return (
-    <div className="rounded-xl bg-cream p-3">
-      <div className="text-3xl font-bold text-brand tabular-nums">{n}</div>
+    <div className="rounded-[6px] border-[3px] border-ink bg-sunny/40 p-3">
+      <div className="font-[family-name:var(--font-comic)] text-4xl text-brand tabular-nums">{n}</div>
       <div className="text-xs text-ink-soft">{l}</div>
     </div>
   );
