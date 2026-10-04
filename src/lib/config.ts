@@ -32,6 +32,7 @@ export const CHANNEL_LABEL: Record<string, string> = {
   email: "Email",
   direct: "Direct",
   whatsapp_bot: "WhatsApp bot",
+  web_chat: "Website chat",
 };
 
 // A/B test on the hero promise.

@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   const form = await req.formData();
   const params = Object.fromEntries([...form.entries()].map(([k, v]) => [k, String(v)]));
   if (!validTwilioSignature(req, params)) return new Response("invalid signature", { status: 403 });
-  const replies = await handleWhatsApp(params.From ?? "", params.Body ?? "", { ip: clientIp(req) });
+  const replies = await handleWhatsApp(params.From ?? "", params.Body ?? "", { ip: clientIp(req), trusted: true });
   const xml = `<?xml version="1.0" encoding="UTF-8"?><Response>${replies.map((r) => `<Message>${escapeXml(r)}</Message>`).join("")}</Response>`;
   return new Response(xml, { headers: { "Content-Type": "text/xml" } });
 }

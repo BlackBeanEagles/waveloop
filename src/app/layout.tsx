@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Space_Grotesk, Public_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Glow } from "@/components/Art";
+import ChatWidget from "@/components/ChatWidget";
 
 const display = Space_Grotesk({ variable: "--font-display", subsets: ["latin"], weight: ["500", "700"] });
 const body = Public_Sans({ variable: "--font-body", subsets: ["latin"], weight: ["400", "600", "700"] });
@@ -15,9 +16,7 @@ export const metadata: Metadata = {
 
 const STUDENT = [
   { href: "/", label: "Workshop" },
-  { href: "/whatsapp", label: "WhatsApp bot" },
   { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/live", label: "Live room" },
   { href: "/help", label: "Help desk" },
   { href: "/submit", label: "Submit project" },
 ];
@@ -62,6 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Glow color="blue" className="-left-64 top-[45%] -z-10 h-[560px] w-[560px]" opacity={0.14} />
           {children}
         </main>
+        <ChatWidget />
         <footer className="border-t border-line py-6 text-center text-xs text-ink-soft">
           WaveLoop is a growth-challenge prototype for NxtWave. Not an official NxtWave product.
         </footer>

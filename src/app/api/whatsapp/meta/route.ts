@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         await sendWhatsApp(msg.from, "I can read text messages only. Reply MENU to see options.");
         continue;
       }
-      const replies = await handleWhatsApp(msg.from, text, { ip: `meta:${msg.from}` });
+      const replies = await handleWhatsApp(msg.from, text, { ip: `meta:${msg.from}`, trusted: true });
       for (const r of replies) {
         const res = await sendWhatsApp(msg.from, r);
         if (!res.ok) console.error("meta send failed", res.error);
