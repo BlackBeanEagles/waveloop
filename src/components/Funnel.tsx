@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { BRANCHES, YEARS, WORKSHOP_TITLE, TARGET } from "@/lib/config";
 import { LANGS, t, type Lang } from "@/lib/i18n";
 import { post, visitorId } from "@/lib/client";
-import { ReferralNetwork, Rings } from "@/components/Art";
+import { ReferralNetwork } from "@/components/Art";
 
 type Idea = { title: string; pitch: string; why_it_fits_you: string; steps: string[]; tools: string[]; resume_line: string; source: string };
 
@@ -81,7 +81,8 @@ export default function Funnel(p: Props) {
     history.replaceState(null, "", u);
   }
 
-  const countdown = useCountdown(p.workshopAt);
+  // Fixed locale and zone, so server and browser render the identical string.
+  const workshopLabel = new Date(p.workshopAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true }) + " IST · live, 60 minutes";
 
   function startForm() {
     if (formStarted.current) return;
@@ -153,15 +154,10 @@ export default function Funnel(p: Props) {
           </h1>
           <p className={`text-lg text-ink-soft transition-opacity ${copy ? "opacity-100" : "opacity-0"}`}>{copy?.sub ?? " "}</p>
 
-          <div className="grid grid-cols-3 gap-3 text-center">
-            {countdown.map(([n, k]) => (
-              <div key={k} className="relative overflow-hidden rounded-2xl bg-ink p-3 text-white">
-                <Rings className="-right-10 -top-10 h-28 w-28" stroke="#F6F4EF" />
-                <div className="relative font-[family-name:var(--font-display)] text-3xl font-bold tabular-nums">{n}</div>
-                <div className="relative text-xs text-white/70">{tr(k)}</div>
-              </div>
-            ))}
-          </div>
+          <p className="flex w-fit items-center gap-2 rounded-full border border-line bg-paper px-4 py-2 text-sm font-semibold text-ink">
+            <span aria-hidden>📅</span>
+            {workshopLabel}
+          </p>
 
           <div className="card">
             <div className="mb-2 flex items-baseline justify-between text-sm">
@@ -362,25 +358,4 @@ export function IdeaCard({ idea, compact = false, labels }: { idea: Idea; compac
       )}
     </div>
   );
-}
-
-function useCountdown(iso: string): [string, "days" | "hours" | "mins"][] {
-  const [left, setLeft] = useState<number | null>(null);
-  useEffect(() => {
-    const tick = () => setLeft(Math.max(0, new Date(iso).getTime() - Date.now()));
-    tick();
-    const timer = setInterval(tick, 1000);
-    return () => clearInterval(timer);
-  }, [iso]);
-  if (left === null)
-    return [
-      ["–", "days"],
-      ["–", "hours"],
-      ["–", "mins"],
-    ];
-  return [
-    [String(Math.floor(left / 86_400_000)), "days"],
-    [String(Math.floor((left % 86_400_000) / 3_600_000)), "hours"],
-    [String(Math.floor((left % 3_600_000) / 60_000)), "mins"],
-  ];
 }
