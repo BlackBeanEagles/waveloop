@@ -81,60 +81,15 @@ export function PageHeader({ eyebrow, title, sub, children }: { eyebrow: string;
   );
 }
 
-// ---------- Comic kit ----------
-
-// Starburst ("POW!" shape) with a word inside.
-export function Burst({ text, className = "", fill = "#FFD84D" }: { text: string; className?: string; fill?: string }) {
-  const pts: string[] = [];
-  const spikes = 14;
-  for (let i = 0; i < spikes * 2; i++) {
-    const r = i % 2 === 0 ? 50 : 36 + ((i * 7) % 5);
-    const a = (Math.PI * i) / spikes - Math.PI / 2;
-    pts.push(`${(60 + r * Math.cos(a)).toFixed(1)},${(60 + r * Math.sin(a)).toFixed(1)}`);
-  }
-  return (
-    <div className={`grid place-items-center ${className.includes("absolute") ? "" : "relative"} ${className}`}>
-      <svg aria-hidden viewBox="0 0 120 120" className="absolute inset-0 h-full w-full drop-shadow-[3px_3px_0_#13233d]">
-        <polygon points={pts.join(" ")} fill={fill} stroke="#13233d" strokeWidth="3" strokeLinejoin="round" />
-      </svg>
-      <span className="relative -rotate-6 font-[family-name:var(--font-comic)] text-xl leading-none tracking-wide text-ink">{text}</span>
-    </div>
-  );
+export function Burst({ text, className = "" }: { text: string; className?: string; fill?: string }) {
+  return <div className={`art-badge ${className}`}>{text}</div>;
 }
-
-// Speech bubble with a tail pointing down-left.
 export function Bubble({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`relative w-fit ${className}`}>
-      <div className="relative z-10 rounded-[22px] border-[3px] border-ink bg-paper px-4 py-2.5 text-sm font-bold leading-snug text-ink">{children}</div>
-      <svg aria-hidden viewBox="0 0 40 28" className="absolute -bottom-[22px] left-7 z-20 h-7 w-10">
-        <path d="M2 0 L14 26 L30 0" fill="#FFFDF9" stroke="#13233d" strokeWidth="3" strokeLinejoin="round" />
-        <rect x="0" y="-4" width="40" height="5" fill="#FFFDF9" />
-      </svg>
-    </div>
-  );
+  return <div className={`art-bubble ${className}`}>{children}</div>;
 }
-
-// Narrator caption box, the yellow rectangle in the corner of a comic panel.
 export function Caption({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`w-fit border-[3px] border-ink bg-sunny px-3 py-1 font-[family-name:var(--font-comic)] text-base uppercase tracking-wider text-ink shadow-[3px_3px_0_0_#13233d] ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`art-caption ${className}`}>{children}</div>;
 }
-
-// Action lines radiating from a corner, for drama behind a panel.
-export function SpeedLines({ className = "" }: { className?: string }) {
-  const lines = Array.from({ length: 22 }, (_, i) => {
-    const a = (i / 22) * Math.PI * 0.5;
-    return <line key={i} x1="0" y1="0" x2={(400 * Math.cos(a)).toFixed(0)} y2={(400 * Math.sin(a)).toFixed(0)} />;
-  });
-  return (
-    <svg aria-hidden viewBox="0 0 400 400" className={`pointer-events-none absolute ${className}`}>
-      <g stroke="#13233d" strokeOpacity="0.09" strokeWidth={6}>
-        {lines}
-      </g>
-    </svg>
-  );
+export function SpeedLines({ className }: { className?: string }) {
+  return <span hidden aria-hidden className={className} />;
 }

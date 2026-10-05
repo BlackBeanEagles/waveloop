@@ -1,67 +1,29 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import Link from "next/link";
-import { Space_Grotesk, Public_Sans, Geist_Mono, Caveat, Bangers } from "next/font/google";
 import "./globals.css";
 import ChatWidget from "@/components/ChatWidget";
+import Navigation from "@/components/Navigation";
+import { siteUrl } from "@/lib/config";
 
-const display = Space_Grotesk({ variable: "--font-display", subsets: ["latin"], weight: ["500", "700"] });
-const body = Public_Sans({ variable: "--font-body", subsets: ["latin"], weight: ["400", "600", "700"] });
-const comic = Bangers({ variable: "--font-comic", subsets: ["latin"], weight: "400" });
-const hand = Caveat({ variable: "--font-hand", subsets: ["latin"], weight: ["600", "700"] });
-const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-
+const display = localFont({ src: "../assets/fonts/PublicSans-700.woff", variable: "--font-heading", weight: "700", display: "swap" });
 export const metadata: Metadata = {
-  title: "WaveLoop · NxtWave AI Workshop",
-  description: "Get your personal AI project idea and a free seat at NxtWave's 'Build Your First AI Project in 60 Minutes' workshop.",
+  metadataBase: new URL(siteUrl()),
+  title: "WaveLoop · Build something that’s yours",
+  description: "Find your AI project, build it in a free 60-minute workshop, and bring your campus along. A NxtWave Growth Challenge prototype.",
 };
-
-const STUDENT = [
-  { href: "/", label: "Workshop" },
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/help", label: "Help desk" },
-  { href: "/submit", label: "Submit project" },
-];
-const TEAM = [
-  { href: "/ambassador", label: "Ambassadors" },
-  { href: "/admin", label: "Growth dashboard" },
-];
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${hand.variable} ${comic.variable} ${mono.variable} h-full antialiased`}>
+    <html lang="en" className={`${display.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <nav className="sticky top-0 z-50 border-b-2 border-ink bg-ink text-white">
-          <div className="no-scrollbar mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-4 py-2.5 text-sm">
-            <Link href="/" className="mr-4 flex shrink-0 items-center gap-2 font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
-              <svg aria-hidden viewBox="0 0 24 24" className="h-6 w-6">
-                <circle cx="12" cy="12" r="11" fill="#B4501F" />
-                <path d="M7 13.5a5 5 0 1 0 5-5" fill="none" stroke="#F6F4EF" strokeWidth="2.2" strokeLinecap="round" />
-                <path d="M10.5 6.5 12.5 8.5 10.5 10.5" fill="none" stroke="#F6F4EF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span className="font-[family-name:var(--font-comic)] text-2xl font-normal tracking-wider">
-                Wave<span className="text-sunny">Loop!</span>
-              </span>
-            </Link>
-            {STUDENT.map((t) => (
-              <Link key={t.href} href={t.href} className="shrink-0 rounded-full px-3 py-1 font-semibold text-white/80 transition hover:bg-sunny hover:text-ink">
-                {t.label}
-              </Link>
-            ))}
-            <span className="mx-2 h-5 w-px shrink-0 bg-white/20" />
-            <span className="mr-1 shrink-0 text-[11px] uppercase tracking-widest text-white/40">Team</span>
-            {TEAM.map((t) => (
-              <Link key={t.href} href={t.href} className="shrink-0 rounded-full px-3 py-1 font-semibold text-white/80 transition hover:bg-sunny hover:text-ink">
-                {t.label}
-              </Link>
-            ))}
-          </div>
-        </nav>
-        <main className="relative isolate flex-1 overflow-x-clip">
-          {children}
-        </main>
+        <a href="#main-content" className="skip-link">Skip to content</a>
+        <Navigation />
+        <main id="main-content" className="relative isolate flex-1 overflow-x-clip">{children}</main>
         <ChatWidget />
-        <footer className="border-t border-line py-6 text-center text-xs text-ink-soft">
-          WaveLoop is a growth-challenge prototype for NxtWave. Not an official NxtWave product.
+        <footer className="site-footer">
+          <div><Link href="/" className="footer-brand">waveloop<span>.</span></Link><p>Build a project. Start a ripple.</p></div>
+          <p>A NxtWave Growth Challenge prototype.<br />Independent project · Not an official NxtWave product.</p>
+          <div className="footer-links"><Link href="/live">Workshop check-in ↗</Link><Link href="/admin">Team dashboard ↗</Link></div>
         </footer>
       </body>
     </html>
