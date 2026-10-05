@@ -5,20 +5,20 @@
   --font-hand: var(--font-heading), Arial, sans-serif;
   --font-comic: var(--font-heading), Arial, sans-serif;
   --font-mono: Consolas, monospace;
-  --color-ink: #252a27;
-  --color-ink-soft: #646a65;
-  --color-brand: #b84627;
-  --color-brand-dark: #96381e;
+  --color-ink: #211d27;
+  --color-ink-soft: #625d66;
+  --color-brand: #d9412d;
+  --color-brand-dark: #b42c1b;
   --color-sun: #df7950;
-  --color-sunny: #f4e5c8;
-  --color-mint: #dae8dd;
-  --color-pink: #f2ded5;
-  --color-lilac: #e3e5df;
+  --color-sunny: #ffe34d;
+  --color-mint: #c7e5cf;
+  --color-pink: #ffc5d1;
+  --color-lilac: #cabaff;
   --color-sky: #416a91;
-  --color-cream: #f7f7f2;
+  --color-cream: #fffaf0;
   --color-sand: #e9e9e1;
-  --color-paper: #fff;
-  --color-line: #dedfd7;
+  --color-paper: #fffdf6;
+  --color-line: #d7cfc0;
   --animate-pop-in: appear .3s ease both;
 }
 :root { --font-body: Arial, Helvetica, sans-serif; --font-display: var(--font-heading), Arial, sans-serif; --font-hand: var(--font-heading), Arial, sans-serif; --font-comic: var(--font-heading), Arial, sans-serif; --font-geist-mono: Consolas, monospace; }

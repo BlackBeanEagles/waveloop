@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-const links = [["/", "The workshop"], ["/leaderboard", "Campus leaderboard"], ["/ambassador", "Ambassadors"], ["/help", "Help desk"], ["/submit", "Submit project"]];
+const links = [["/", "The quest"], ["/leaderboard", "Leaderboard"], ["/ambassador", "Ambassadors"], ["/help", "Help desk"], ["/submit", "Submit project"]];
 export default function Navigation() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
@@ -17,7 +17,7 @@ export default function Navigation() {
         <div id="nav-links" className={`nav-links ${open ? "is-open" : ""}`}>
           {links.map(([href, label]) => <Link key={href} href={href} aria-current={path === href ? "page" : undefined} onClick={() => setOpen(false)}>{label}</Link>)}
         </div>
-        <Link href="/#project-builder" className="nav-cta" onClick={() => setOpen(false)}>Find my project <span aria-hidden>↗</span></Link>
+        <Link href="/#project-builder" className="nav-cta" onClick={() => setOpen(false)}>Start my quest <span aria-hidden>↗</span></Link>
       </nav>
     </header>
   );

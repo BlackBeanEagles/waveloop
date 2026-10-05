@@ -6,6 +6,9 @@ import { BRANCHES, YEARS, TARGET } from "@/lib/config";
 import { LANGS, t, type Lang } from "@/lib/i18n";
 import { post, visitorId } from "@/lib/client";
 import Link from "next/link";
+import CampusCover from "@/components/CampusCover";
+import QuestConsole from "@/components/QuestConsole";
+import { useQuestGame } from "@/components/QuestGame";
 
 type Idea = { title: string; pitch: string; why_it_fits_you: string; steps: string[]; tools: string[]; resume_line: string; source: string };
 
@@ -28,6 +31,7 @@ const SKILLS = [
 
 export default function Funnel(p: Props) {
   const router = useRouter();
+  const { award } = useQuestGame();
   const [lang, setLang] = useState<Lang>(p.initialLang);
   const [englishVariant, setVariant] = useState<string>("");
   const [englishCopy, setCopy] = useState<{ headline: string; sub: string } | null>(null);
@@ -109,7 +113,7 @@ export default function Funnel(p: Props) {
     e.preventDefault();
     await request(async () => {
       const r = await post<{ idea?: Idea; error?: string }>("/api/idea", { ...ideaForm, lang, visitorId: vid.current, variant, channel: p.channel });
-      if (r.idea) { setIdea(r.idea); setStage("register"); }
+      if (r.idea) { setIdea(r.idea); setStage("register"); award("choose_project"); award("build_plan"); }
       else setError(r.error ?? "Something went wrong");
     });
   }
@@ -125,6 +129,7 @@ export default function Funnel(p: Props) {
     if (r.existing) return router.push(`/u/${r.refCode}`);
     setPending({ userId: r.userId, refCode: r.refCode, via: r.otpSentVia, demoOtp: r.demoOtp });
     setStage("otp");
+    award("register");
     });
   }
 
@@ -134,6 +139,7 @@ export default function Funnel(p: Props) {
     await request(async () => {
     const r = await post<{ ok: boolean; error?: string }>("/api/verify", { userId: pending.userId, code: otp });
     if (!r.ok) return setError(r.error ?? "Wrong code");
+    award("verified");
     router.push(`/u/${pending.refCode}?new=1`);
     });
   }
@@ -157,35 +163,43 @@ export default function Funnel(p: Props) {
           {(Object.keys(LANGS) as Lang[]).map((l) => <button key={l} onClick={() => switchLang(l)} aria-pressed={l === lang}>{LANGS[l].native}</button>)}
         </div>
       </div>
+      <CampusCover
+        busy={busy}
+        headline={copy?.headline ?? tr("hero_h")}
+        sub={copy?.sub ?? tr("hero_s")}
+        isEnglish={lang === "en"}
+        workshopDate={workshopLabel}
+        onChoose={(interest) => {
+          award("choose_project");
+          setIdeaForm({ ...ideaForm, interest });
+          setStage("idea");
+          setError(null);
+          startForm();
+          requestAnimationFrame(() => {
+            document.getElementById("project-builder")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+            document.getElementById("interest")?.focus({ preventScroll: true });
+          });
+        }}
+      />
       <div className="hero-grid">
-        <section className="hero-copy">
-          {p.inviter && <p className="mb-5 rounded-lg bg-mint/50 px-3 py-2 text-xs">{tr("invited", { name: p.inviter.name, college: p.inviter.college })}</p>}
-          <p className="hero-eyebrow">A small start. A real project.</p>
-          <h1><Headline text={copy?.headline ?? tr("hero_h")} /></h1>
-          <p className="hero-sub">{copy?.sub ?? tr("hero_s")}</p>
-          <div className="hero-facts">
-            <span><Icon name="check" /> 100% free</span><span><Icon name="clock" /> Live, online</span><span><Icon name="code" /> Beginner friendly</span>
-          </div>
-          <div className="workshop-date">
-            <span className="date-icon"><Icon name="calendar" /></span>
-            <div><strong>{workshopLabel.replace(" · live, 60 minutes", "")}</strong><p>One hour. Your laptop. Something to show for it.</p></div>
-          </div>
-          <div className="community-proof">
-            <div className="community-mark" aria-hidden><span>⌘</span><span>↗</span><span>+</span></div>
-            <p><strong>Built for final-year engineers.</strong><br />Any branch. Your curiosity is the starting point.</p>
-          </div>
-          <a href="#project-builder" className="text-link lg:hidden">Start with your project idea ↗</a>
+        <section className="mission-intro">
+          <p className="chapter-label">02 / CREATE YOUR LOADOUT</p>
+          <h2>Not all heroes<br />wear capes.<br /><em>Some bring laptops.</em></h2>
+          <p>Your branch + your interests + a little AI.<br />Let’s find a project that feels like you.</p>
+          {p.inviter && <p className="invitation-note">{tr("invited", { name: p.inviter.name, college: p.inviter.college })}</p>}
+          <QuestConsole branch={ideaForm.branch} interest={ideaForm.interest} skill={ideaForm.skill} stage={stage} />
+          <p className="mission-aside">No coding confidence? Borrow some of ours. ↗</p>
         </section>
         <section className="builder-card" id="project-builder" aria-label="Find your project and register">
-          <div className="builder-top"><strong>YOUR FIRST BUILD STARTS HERE</strong><span>FREE WORKSHOP</span></div>
+          <div className="builder-top"><strong>NEW PLAYER SETUP</strong><span>PRESS START ↙</span></div>
           <div className="builder-body" aria-busy={busy}>
             <Steps stage={stage} labels={[tr("step_idea"), tr("step_register"), tr("step_verify")]} />
             {error && <div role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</div>}
               {stage === "idea" && (
                 <form onSubmit={getIdea} className="flex flex-col gap-4" onFocus={startForm}>
                   <div>
-                    <h2>{lang === "en" ? "What will you build?" : tr("idea_title")}</h2>
-                    <p className="text-sm text-ink-soft">{lang === "en" ? "A project that fits your branch and what you’re into." : tr("idea_sub")}</p>
+                    <h2>{lang === "en" ? "Choose your powers." : tr("idea_title")}</h2>
+                    <p className="text-sm text-ink-soft">{lang === "en" ? "Tell us your thing. We’ll help you build a thing." : tr("idea_sub")}</p>
                   </div>
                   <div>
                     <label className="label" htmlFor="branch">{tr("branch")}</label>
@@ -227,7 +241,7 @@ export default function Funnel(p: Props) {
                     </div>
                   </div>
                   <button className="btn-primary py-3.5 text-base" disabled={busy}>
-                    {busy ? tr("gen_busy") : lang === "en" ? "Find my project  ↗" : tr("gen_btn")}
+                    {busy ? tr("gen_busy") : lang === "en" ? "Generate my quest  →" : tr("gen_btn")}
                   </button>
                 </form>
               )}
@@ -295,40 +309,16 @@ export default function Funnel(p: Props) {
           <div className="builder-foot"><span>Already registered?</span><Link href="/live">Head to the workshop ↗</Link></div>
         </section>
       </div>
-      <section className="outcome-strip" aria-label="Workshop outcomes">
-        <p className="outcome-intro">Less watching.<br />More “I made this.”</p>
-        <Outcome icon="code" title="A working AI project" sub="Built around your interests" />
-        <Outcome icon="link" title="A link worth sharing" sub="Your GitHub + live demo" />
-        <Outcome icon="file" title="A stronger portfolio" sub="Something real to talk about" />
-      </section>
-      <section className="build-section" aria-labelledby="session-title">
-        <div>
-          <p className="section-kicker">THE PLAN FOR YOUR 60 MINUTES</p>
-          <h2 className="section-title" id="session-title">From “where do I start?”<br />to “look what I built.”</h2>
-          <p className="section-sub">Pick a problem you care about. We’ll help you turn it into a small AI app, one practical step at a time.</p>
-          <ol className="timeline">
-            <li><time>00–15</time><strong>Meet your tools. Make a plan.</strong></li>
-            <li><time>15–40</time><strong>Build the core. Give your idea a working form.</strong></li>
-            <li><time>40–60</time><strong>Test it, publish it, make it yours.</strong></li>
-          </ol>
-        </div>
-        <div className="project-preview">
-          <div className="preview-label"><span>ONE THING YOU COULD BUILD</span><span>01 / EXAMPLE</span></div>
-          <div className="preview-window">
-            <div className="window-bar" aria-hidden><i /><i /><i /><small>my-first-project / preview</small></div>
-            <div className="preview-inner">
-              <span className="app-symbol"><Icon name="file" /></span>
-              <h3>Resume, meet your next role.</h3>
-              <p>A little AI app that helps you see how your resume fits a job description.</p>
-              <div className="preview-input">resume.pdf <span>↑ File added</span></div>
-              <div className="preview-result"><small>EXAMPLE FEEDBACK</small><p>Your Python project is a good fit. Add the problem you solved and a link to your work.</p></div>
-            </div>
-          </div>
-          <div className="preview-caption"><span>AI + a real-world problem</span><span>Built by you ↗</span></div>
+      <section className="mission-manual" aria-labelledby="manual-title">
+        <div className="chapter-heading"><div><p className="chapter-label">03 / THE GAME PLAN</p><h2 id="manual-title">One hour.<br /><em>Three plot twists.</em></h2></div><p>A workshop where you actually make stuff.<br />Here’s how the story goes.</p></div>
+        <div className="manual-panels">
+          <article><div className="manual-scene scene-plan" aria-hidden><span className="scene-note">what if...?</span><span className="scene-cursor">↖</span><span className="scene-star">✳</span></div><span className="manual-time">00—15 MIN / THE ORIGIN</span><h3>Find your superproblem.</h3><p>Pick your idea, meet the tools, and figure out what your first version needs to do.</p></article>
+          <article><div className="manual-scene scene-build" aria-hidden><div className="mini-terminal"><span>my-first-build</span><code>&gt; idea + curiosity<br />&gt; building something cool_<br /><b>✓ it works!</b></code></div></div><span className="manual-time">15—40 MIN / THE POWER-UP</span><h3>Make the thing work.</h3><p>Write a prompt. Build your app. Break a little, fix a little. Get help when you need it.</p></article>
+          <article><div className="manual-scene scene-ship" aria-hidden><span className="ship-burst">I MADE<br />THIS!</span><span className="ship-arrow">↗</span></div><span className="manual-time">40—60 MIN / THE BIG REVEAL</span><h3>Ship it. Show your people.</h3><p>Test your project, publish a demo, and leave with something you can put your name on.</p></article>
         </div>
       </section>
       <section className="campus-section" aria-labelledby="campus-title">
-        <div><p className="section-kicker mb-3">BETTER WITH YOUR BATCH</p><h2 id="campus-title">One link. A campus full of builders.</h2><p>Register, get your personal invite link, and bring a friend. Verified referrals unlock rewards and move your college up the board.</p><Link className="text-link" href="/leaderboard">Explore the campus leaderboard ↗</Link></div>
+        <div><p className="section-kicker mb-3">04 / UNLOCK MULTIPLAYER</p><h2 id="campus-title">Good solo. Better with your squad.</h2><p>Register, get your personal invite link, and bring a friend. Verified referrals unlock rewards and move your college up the board.</p><Link className="text-link" href="/leaderboard">Explore the campus leaderboard ↗</Link></div>
         <div className="campaign-progress">
           <div className="progress-label"><span><strong>{p.registered}</strong> / {TARGET} students</span><span>CAMPAIGN GOAL</span></div>
           <div className="progress-track" role="progressbar" aria-label="Verified registration goal" aria-valuenow={Math.min(p.registered, TARGET)} aria-valuemin={0} aria-valuemax={TARGET}><div style={{ width: `${pct}%` }} /></div>
@@ -337,7 +327,7 @@ export default function Funnel(p: Props) {
         </div>
       </section>
       <section className="faq-section" aria-labelledby="faq-title">
-        <div><p className="section-kicker">BEFORE YOU JUMP IN</p><h2 className="section-title" id="faq-title">A few good questions.</h2><Link className="text-link" href="/help">Need a hand? Visit the help desk ↗</Link></div>
+        <div><p className="section-kicker">THE FAQ SIDE QUEST</p><h2 className="section-title" id="faq-title">Plot holes? Let’s fix ’em.</h2><Link className="text-link" href="/help">Need a hand? Visit the help desk ↗</Link></div>
         <div className="faq-list">
           <details><summary>Do I need to know how to code?</summary><p>You can start as a beginner. Tell us your skill level in the project finder so your suggested build matches your experience. Bring a laptop and a reliable internet connection.</p></details>
           <details><summary>Is the workshop really free?</summary><p>Yes. Registration is free. This site is a working prototype for the NxtWave Growth Challenge; the campaign and rewards are a simulation.</p></details>
@@ -351,18 +341,9 @@ export default function Funnel(p: Props) {
 
 const INTERESTS = ["cricket", "movies", "gaming", "music", "stocks", "farming"];
 
-function Headline({ text }: { text: string }) {
-  const match = text.match(/^(.*?)(60 minutes\.?)(.*)$/i);
-  return match ? <>{match[1]}<em>{match[2]}</em>{match[3]}</> : <>{text}</>;
-}
-
 function Steps({ stage, labels }: { stage: string; labels: string[] }) {
   const idx = ["idea", "register", "otp"].indexOf(stage);
   return <ol className="form-steps" aria-label="Registration progress">{labels.map((label, i) => <li key={label} aria-current={i === idx ? "step" : undefined} className={i === idx ? "is-current" : i < idx ? "is-done" : ""}><span>{i < idx ? "✓" : `0${i + 1}`}</span>{label}</li>)}</ol>;
-}
-
-function Outcome({ icon, title, sub }: { icon: string; title: string; sub: string }) {
-  return <div className="outcome"><span><Icon name={icon} /></span><div><h3>{title}</h3><p>{sub}</p></div></div>;
 }
 
 function Icon({ name }: { name: string }) {
